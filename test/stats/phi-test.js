@@ -1,7 +1,7 @@
 const science = require("../../science.v1");
 
 var vows = require("vows"),
-    assert = require("assert");
+    assert = require("../env-assert");
 
 var suite = vows.describe("science.stats.phi");
 
