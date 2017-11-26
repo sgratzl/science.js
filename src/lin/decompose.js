@@ -1,3 +1,5 @@
+import hypot from '../core/hypot';
+
 export default function decompose() {
 
   function decompose(A) {
@@ -179,7 +181,7 @@ function science_lin_decomposeTql2(d, e, V) {
         // Compute implicit shift
         var g = d[l];
         var p = (d[l + 1] - g) / (2 * e[l]);
-        var r = science.hypot(p, 1);
+        var r = hypot(p, 1);
         if (p < 0) r = -r;
         d[l] = e[l] / (p + r);
         d[l + 1] = e[l] * (p + r);
@@ -202,7 +204,7 @@ function science_lin_decomposeTql2(d, e, V) {
           s2 = s;
           g = c * e[i];
           h = c * p;
-          r = science.hypot(p,e[i]);
+          r = hypot(p,e[i]);
           e[i + 1] = s * r;
           s = e[i] / r;
           c = p / r;

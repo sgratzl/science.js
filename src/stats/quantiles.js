@@ -1,6 +1,8 @@
+import ascending from '../core/ascending';
+
 // Uses R's quantile algorithm type=7.
 export default function quantiles(d, quantiles) {
-  d = d.slice().sort(science.ascending);
+  d = d.slice().sort(ascending);
   var n_1 = d.length - 1;
   return quantiles.map(function(q) {
     if (q === 0) return d[0];

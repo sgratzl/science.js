@@ -1,7 +1,9 @@
+import {euclidean} from './distance';
+
 // Based on figue implementation by Jean-Yves Delort.
 // http://code.google.com/p/figue/
 export default function kmeans() {
-  var distance = science.stats.distance.euclidean,
+  var distance = euclidean,
       maxIterations = 1000,
       k = 1;
 

@@ -1,3 +1,5 @@
+import gaussjordan from './gaussjordan';
+
 // Find matrix inverse using Gauss-Jordan.
 export default function inverse(m) {
   var n = m.length,
@@ -15,7 +17,7 @@ export default function inverse(m) {
   });
 
   // Compute IA^-1.
-  science.lin.gaussjordan(m);
+  gaussjordan(m);
 
   // Remove identity matrix I to get A^-1.
   while (++i < n) {

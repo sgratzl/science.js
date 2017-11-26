@@ -1,5 +1,7 @@
+import {euclidean} from './distance';
+
 export default function hcluster() {
-  var distance = science.stats.distance.euclidean,
+  var distance = euclidean,
       linkage = "single"; // single, complete or average
 
   function hcluster(vectors) {

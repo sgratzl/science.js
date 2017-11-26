@@ -1,3 +1,5 @@
+import erf from '../erf';
+
 // From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
 // Uses the Box-Muller Transform.
 export default function gaussian() {
@@ -28,7 +30,7 @@ export default function gaussian() {
 
   gaussian.cdf = function(x) {
     x = (x - mean) / sigma;
-    return .5 * (1 + science.stats.erf(x / Math.SQRT2));
+    return .5 * (1 + erf(x / Math.SQRT2));
   };
 
   gaussian.mean = function(x) {

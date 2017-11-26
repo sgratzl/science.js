@@ -1,3 +1,5 @@
+import medianF from './median';
+
 // Based on org.apache.commons.math.analysis.interpolation.LoessInterpolator
 // from http://commons.apache.org/math/
 export default function loess() {
@@ -113,7 +115,7 @@ export default function loess() {
       // Recompute the robustness weights.
 
       // Find the median residual.
-      var medianResidual = science.stats.median(residuals);
+      var medianResidual = medianF(residuals);
 
       if (Math.abs(medianResidual) < accuracy)
         break;

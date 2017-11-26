@@ -1,8 +1,12 @@
+import {gaussian} from './kernel';
+import {nrd} from './bandwidth';
+import functor from '../core/functor';
+
 // http://exploringdata.net/den_trac.htm
 export default function kde() {
-  var kernel = science.stats.kernel.gaussian,
+  var kernel = gaussian,
       sample = [],
-      bandwidth = science.stats.bandwidth.nrd;
+      bandwidth = nrd;
 
   function kde(points, i) {
     var bw = bandwidth.call(this, sample);
@@ -31,7 +35,7 @@ export default function kde() {
 
   kde.bandwidth = function(x) {
     if (!arguments.length) return bandwidth;
-    bandwidth = science.functor(x);
+    bandwidth = functor(x);
     return kde;
   };
 

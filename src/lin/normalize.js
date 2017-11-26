@@ -1,4 +1,6 @@
+import len from './length';
+
 export default function normalize(p) {
-  var length = science.lin.length(p);
+  var length = len(p);
   return p.map(function(d) { return d / length; });
 };
