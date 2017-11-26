@@ -1,6 +1,7 @@
 {
   "name": "science",
   "version": "1.9.3",
+  "license": "SEE LICENSE IN LICENSE",
   "description": "Scientific and statistical computing in JavaScript.",
   "keywords": [
     "science",
@@ -17,7 +18,19 @@
     "url": "http://github.com/jasondavies/science.js.git"
   },
   "devDependencies": {
-    "uglify-js": "2.4.24",
-    "vows": "0.6.0"
+    "rollup": "^0.52.0",
+    "uglify-js": "^2.8.11",
+    "vows": "^0.6.0"
+  },
+  "files": [
+    "src",
+    "science.v1.js",
+    "science.v1.min.js"
+  ],
+  "scripts": {
+    "prepublish": "npm run test && uglifyjs science.v1.js -c -m -o science.v1.min.js",
+    "build": "rollup -c",
+    "pretest": "npm run build",
+    "test": "vows"
   }
 }

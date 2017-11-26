@@ -1,21 +1,32 @@
-(function(exports){
-(function(exports){
-science = {version: "1.9.3"}; // semver
-science.ascending = function(a, b) {
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global.science = {})));
+}(this, (function (exports) { 'use strict';
+
+function ascending(a, b) {
   return a - b;
-};
-// Euler's constant.
-science.EULER = .5772156649015329;
-// Compute exp(x) - 1 accurately for small x.
-science.expm1 = function(x) {
+}
+
+/**
+ * Euler's constant.
+ */
+const EULER = .5772156649015329;
+
+/**
+Compute exp(x) - 1 accurately for small x.
+ */
+function expm1(x) {
   return (x < 1e-5 && x > -1e-5) ? x + .5 * x * x : Math.exp(x) - 1;
-};
-science.functor = function(v) {
+}
+
+function functor(v) {
   return typeof v === "function" ? v : function() { return v; };
-};
+}
+
 // Based on:
 // http://www.johndcook.com/blog/2010/06/02/whats-so-hard-about-finding-a-hypotenuse/
-science.hypot = function(x, y) {
+function hypot(x, y) {
   x = Math.abs(x);
   y = Math.abs(y);
   var max,
@@ -24,8 +35,9 @@ science.hypot = function(x, y) {
   else       { max = y; min = x; }
   var r = min / max;
   return max * Math.sqrt(1 + r * r);
-};
-science.quadratic = function() {
+}
+
+function quadratic() {
   var complex = false;
 
   function quadratic(a, b, c) {
@@ -57,9 +69,12 @@ science.quadratic = function() {
   };
 
   return quadratic;
-};
-// Constructs a multi-dimensional array filled with zeroes.
-science.zeroes = function(n) {
+}
+
+/*
+ Constructs a multi-dimensional array filled with zeroes.
+ */
+function zeroes(n) {
   var i = -1,
       a = [];
   if (arguments.length === 1)
@@ -67,14 +82,24 @@ science.zeroes = function(n) {
       a[i] = 0;
   else
     while (++i < n)
-      a[i] = science.zeroes.apply(
+      a[i] = zeroes.apply(
         this, Array.prototype.slice.call(arguments, 1));
   return a;
-};
-})(this);
-(function(exports){
-science.lin = {};
-science.lin.decompose = function() {
+}
+
+const version = "1.9.3"; // semver
+
+function cross(a, b) {
+  // TODO how to handle non-3D vectors?
+  // TODO handle 7D vectors?
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0]
+  ];
+}
+
+function decompose() {
 
   function decompose(A) {
     var n = A.length, // column dimension
@@ -127,7 +152,7 @@ science.lin.decompose = function() {
   }
 
   return decompose;
-};
+}
 
 // Symmetric Householder reduction to tridiagonal form.
 function science_lin_decomposeTred2(d, e, V) {
@@ -248,11 +273,7 @@ function science_lin_decomposeTql2(d, e, V) {
     // If m == l, d[l] is an eigenvalue,
     // otherwise, iterate.
     if (m > l) {
-      var iter = 0;
       do {
-        iter++;  // (Could check iteration count here.)
-
-        // Compute implicit shift
         var g = d[l];
         var p = (d[l + 1] - g) / (2 * e[l]);
         var r = science.hypot(p, 1);
@@ -783,31 +804,9 @@ function science_lin_decomposeCdiv(xr, xi, yr, yi) {
     return [(r * xr + xi) / d, (r * xi - xr) / d];
   }
 }
-science.lin.cross = function(a, b) {
-  // TODO how to handle non-3D vectors?
-  // TODO handle 7D vectors?
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0]
-  ];
-};
-science.lin.dot = function(a, b) {
-  var s = 0,
-      i = -1,
-      n = Math.min(a.length, b.length);
-  while (++i < n) s += a[i] * b[i];
-  return s;
-};
-science.lin.length = function(p) {
-  return Math.sqrt(science.lin.dot(p, p));
-};
-science.lin.normalize = function(p) {
-  var length = science.lin.length(p);
-  return p.map(function(d) { return d / length; });
-};
+
 // 4x4 matrix determinant.
-science.lin.determinant = function(matrix) {
+function determinant(matrix) {
   var m = matrix[0].concat(matrix[1]).concat(matrix[2]).concat(matrix[3]);
   return (
     m[12] * m[9]  * m[6]  * m[3]  - m[8] * m[13] * m[6]  * m[3]  -
@@ -822,12 +821,21 @@ science.lin.determinant = function(matrix) {
     m[8]  * m[5]  * m[2]  * m[15] + m[4] * m[9]  * m[2]  * m[15] +
     m[8]  * m[1]  * m[6]  * m[15] - m[0] * m[9]  * m[6]  * m[15] -
     m[4]  * m[1]  * m[10] * m[15] + m[0] * m[5]  * m[10] * m[15]);
-};
+}
+
+function dot(a, b) {
+  var s = 0,
+      i = -1,
+      n = Math.min(a.length, b.length);
+  while (++i < n) s += a[i] * b[i];
+  return s;
+}
+
 // Performs in-place Gauss-Jordan elimination.
 //
 // Based on Jarno Elonen's Python version (public domain):
 // http://elonen.iki.fi/code/misc-notes/python-gaussj/index.html
-science.lin.gaussjordan = function(m, eps) {
+function gaussjordan(m, eps) {
   if (!eps) eps = 1e-10;
 
   var h = m.length,
@@ -877,9 +885,10 @@ science.lin.gaussjordan = function(m, eps) {
     }
   }
   return true;
-};
+}
+
 // Find matrix inverse using Gauss-Jordan.
-science.lin.inverse = function(m) {
+function inverse(m) {
   var n = m.length,
       i = -1;
 
@@ -903,8 +912,13 @@ science.lin.inverse = function(m) {
   }
 
   return m;
-};
-science.lin.multiply = function(a, b) {
+}
+
+function length(p) {
+  return Math.sqrt(science.lin.dot(p, p));
+}
+
+function multiply(a, b) {
   var m = a.length,
       n = b[0].length,
       p = b.length,
@@ -922,8 +936,14 @@ science.lin.multiply = function(a, b) {
     }
   }
   return ab;
-};
-science.lin.transpose = function(a) {
+}
+
+function normalize(p) {
+  var length = science.lin.length(p);
+  return p.map(function(d) { return d / length; });
+}
+
+function transpose(a) {
   var m = a.length,
       n = a[0].length,
       i = -1,
@@ -934,7 +954,8 @@ science.lin.transpose = function(a) {
     j = -1; while (++j < m) b[i][j] = a[j][i];
   }
   return b;
-};
+}
+
 /**
  * Solves tridiagonal systems of linear equations.
  *
@@ -947,7 +968,7 @@ science.lin.transpose = function(a) {
  * @param {number[]} x
  * @param {number} n
  */
-science.lin.tridag = function(a, b, c, d, x, n) {
+function tridag(a, b, c, d, x, n) {
   var i,
       m;
   for (i = 1; i < n; i++) {
@@ -959,84 +980,169 @@ science.lin.tridag = function(a, b, c, d, x, n) {
   for (i = n - 2; i >= 0; i--) {
     x[i] = (d[i] - c[i] * x[i + 1]) / b[i];
   }
-};
-})(this);
-(function(exports){
-science.stats = {};
+}
+
+
+
+var lin_ = Object.freeze({
+	cross: cross,
+	decompose: decompose,
+	determinant: determinant,
+	dot: dot,
+	gaussjordan: gaussjordan,
+	inverse: inverse,
+	length: length,
+	multiply: multiply,
+	normalize: normalize,
+	transpose: transpose,
+	tridag: tridag
+});
+
+// From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
+// Uses the Box-Muller Transform.
+function gaussian() {
+  var random = Math.random,
+      mean = 0,
+      sigma = 1,
+      variance = 1;
+
+  function gaussian() {
+    var x1,
+        x2,
+        rad;
+
+    do {
+      x1 = 2 * random() - 1;
+      x2 = 2 * random() - 1;
+      rad = x1 * x1 + x2 * x2;
+    } while (rad >= 1 || rad === 0);
+
+    return mean + sigma * x1 * Math.sqrt(-2 * Math.log(rad) / rad);
+  }
+
+  gaussian.pdf = function(x) {
+    x = (x - mean) / sigma;
+    return science_stats_distribution_gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+  };
+
+  gaussian.cdf = function(x) {
+    x = (x - mean) / sigma;
+    return .5 * (1 + science.stats.erf(x / Math.SQRT2));
+  };
+
+  gaussian.mean = function(x) {
+    if (!arguments.length) return mean;
+    mean = +x;
+    return gaussian;
+  };
+
+  gaussian.variance = function(x) {
+    if (!arguments.length) return variance;
+    sigma = Math.sqrt(variance = +x);
+    return gaussian;
+  };
+
+  gaussian.random = function(x) {
+    if (!arguments.length) return random;
+    random = x;
+    return gaussian;
+  };
+
+  return gaussian;
+}
+
+science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+
+
+
+var distribution_ = Object.freeze({
+	gaussian: gaussian
+});
+
 // Bandwidth selectors for Gaussian kernels.
 // Based on R's implementations in `stats.bw`.
-science.stats.bandwidth = {
 
-  // Silverman, B. W. (1986) Density Estimation. London: Chapman and Hall.
-  nrd0: function(x) {
+// Silverman, B. W. (1986) Density Estimation. London: Chapman and Hall.
+function nrd0(x) {
     var hi = Math.sqrt(science.stats.variance(x));
     if (!(lo = Math.min(hi, science.stats.iqr(x) / 1.34)))
-      (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
+        (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
     return .9 * lo * Math.pow(x.length, -.2);
-  },
+}
 
-  // Scott, D. W. (1992) Multivariate Density Estimation: Theory, Practice, and
-  // Visualization. Wiley.
-  nrd: function(x) {
+// Scott, D. W. (1992) Multivariate Density Estimation: Theory, Practice, and
+// Visualization. Wiley.
+function nrd(x) {
     var h = science.stats.iqr(x) / 1.34;
     return 1.06 * Math.min(Math.sqrt(science.stats.variance(x)), h)
-      * Math.pow(x.length, -1/5);
-  }
-};
-science.stats.distance = {
-  euclidean: function(a, b) {
+        * Math.pow(x.length, -1 / 5);
+}
+
+
+var bandwidth_ = Object.freeze({
+	nrd0: nrd0,
+	nrd: nrd
+});
+
+function euclidean(a, b) {
     var n = a.length,
         i = -1,
         s = 0,
         x;
     while (++i < n) {
-      x = a[i] - b[i];
-      s += x * x;
+        x = a[i] - b[i];
+        s += x * x;
     }
     return Math.sqrt(s);
-  },
-  manhattan: function(a, b) {
+}
+
+function manhattan(a, b) {
     var n = a.length,
         i = -1,
         s = 0;
     while (++i < n) s += Math.abs(a[i] - b[i]);
     return s;
-  },
-  minkowski: function(p) {
-    return function(a, b) {
-      var n = a.length,
-          i = -1,
-          s = 0;
-      while (++i < n) s += Math.pow(Math.abs(a[i] - b[i]), p);
-      return Math.pow(s, 1 / p);
+}
+
+function minkowski(p) {
+    return function (a, b) {
+        var n = a.length,
+            i = -1,
+            s = 0;
+        while (++i < n) s += Math.pow(Math.abs(a[i] - b[i]), p);
+        return Math.pow(s, 1 / p);
     };
-  },
-  chebyshev: function(a, b) {
+}
+
+function chebyshev(a, b) {
     var n = a.length,
         i = -1,
         max = 0,
         x;
     while (++i < n) {
-      x = Math.abs(a[i] - b[i]);
-      if (x > max) max = x;
+        x = Math.abs(a[i] - b[i]);
+        if (x > max) max = x;
     }
     return max;
-  },
-  hamming: function(a, b) {
+}
+
+function hamming(a, b) {
     var n = a.length,
         i = -1,
         d = 0;
     while (++i < n) if (a[i] !== b[i]) d++;
     return d;
-  },
-  jaccard: function(a, b) {
+}
+
+function jaccard(a, b) {
     var n = a.length,
         i = -1,
         s = 0;
     while (++i < n) if (a[i] === b[i]) s++;
     return s / n;
-  },
-  braycurtis: function(a, b) {
+}
+
+function braycurtis(a, b) {
     var n = a.length,
         i = -1,
         s0 = 0,
@@ -1044,16 +1150,26 @@ science.stats.distance = {
         ai,
         bi;
     while (++i < n) {
-      ai = a[i];
-      bi = b[i];
-      s0 += Math.abs(ai - bi);
-      s1 += Math.abs(ai + bi);
+        ai = a[i];
+        bi = b[i];
+        s0 += Math.abs(ai - bi);
+        s1 += Math.abs(ai + bi);
     }
     return s0 / s1;
-  }
-};
+}
+
+var distance_ = Object.freeze({
+	euclidean: euclidean,
+	manhattan: manhattan,
+	minkowski: minkowski,
+	chebyshev: chebyshev,
+	hamming: hamming,
+	jaccard: jaccard,
+	braycurtis: braycurtis
+});
+
 // Based on implementation in http://picomath.org/.
-science.stats.erf = function(x) {
+function erf(x) {
   var a1 =  0.254829592,
       a2 = -0.284496736,
       a3 =  1.421413741,
@@ -1073,222 +1189,9 @@ science.stats.erf = function(x) {
   return sign * (
     1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
     * t * Math.exp(-x * x));
-};
-science.stats.phi = function(x) {
-  return .5 * (1 + science.stats.erf(x / Math.SQRT2));
-};
-// See <http://en.wikipedia.org/wiki/Kernel_(statistics)>.
-science.stats.kernel = {
-  uniform: function(u) {
-    if (u <= 1 && u >= -1) return .5;
-    return 0;
-  },
-  triangular: function(u) {
-    if (u <= 1 && u >= -1) return 1 - Math.abs(u);
-    return 0;
-  },
-  epanechnikov: function(u) {
-    if (u <= 1 && u >= -1) return .75 * (1 - u * u);
-    return 0;
-  },
-  quartic: function(u) {
-    if (u <= 1 && u >= -1) {
-      var tmp = 1 - u * u;
-      return (15 / 16) * tmp * tmp;
-    }
-    return 0;
-  },
-  triweight: function(u) {
-    if (u <= 1 && u >= -1) {
-      var tmp = 1 - u * u;
-      return (35 / 32) * tmp * tmp * tmp;
-    }
-    return 0;
-  },
-  gaussian: function(u) {
-    return 1 / Math.sqrt(2 * Math.PI) * Math.exp(-.5 * u * u);
-  },
-  cosine: function(u) {
-    if (u <= 1 && u >= -1) return Math.PI / 4 * Math.cos(Math.PI / 2 * u);
-    return 0;
-  }
-};
-// http://exploringdata.net/den_trac.htm
-science.stats.kde = function() {
-  var kernel = science.stats.kernel.gaussian,
-      sample = [],
-      bandwidth = science.stats.bandwidth.nrd;
-
-  function kde(points, i) {
-    var bw = bandwidth.call(this, sample);
-    return points.map(function(x) {
-      var i = -1,
-          y = 0,
-          n = sample.length;
-      while (++i < n) {
-        y += kernel((x - sample[i]) / bw);
-      }
-      return [x, y / bw / n];
-    });
-  }
-
-  kde.kernel = function(x) {
-    if (!arguments.length) return kernel;
-    kernel = x;
-    return kde;
-  };
-
-  kde.sample = function(x) {
-    if (!arguments.length) return sample;
-    sample = x;
-    return kde;
-  };
-
-  kde.bandwidth = function(x) {
-    if (!arguments.length) return bandwidth;
-    bandwidth = science.functor(x);
-    return kde;
-  };
-
-  return kde;
-};
-// Based on figue implementation by Jean-Yves Delort.
-// http://code.google.com/p/figue/
-science.stats.kmeans = function() {
-  var distance = science.stats.distance.euclidean,
-      maxIterations = 1000,
-      k = 1;
-
-  function kmeans(vectors) {
-    var n = vectors.length,
-        assignments = [],
-        clusterSizes = [],
-        repeat = 1,
-        iterations = 0,
-        centroids = science_stats_kmeansRandom(k, vectors),
-        newCentroids,
-        i,
-        j,
-        x,
-        d,
-        min,
-        best;
-
-    while (repeat && iterations < maxIterations) {
-      // Assignment step.
-      j = -1; while (++j < k) {
-        clusterSizes[j] = 0;
-      }
-
-      i = -1; while (++i < n) {
-        x = vectors[i];
-        min = Infinity;
-        j = -1; while (++j < k) {
-          d = distance.call(this, centroids[j], x);
-          if (d < min) {
-            min = d;
-            best = j;
-          }
-        }
-        clusterSizes[assignments[i] = best]++;
-      }
-
-      // Update centroids step.
-      newCentroids = [];
-      i = -1; while (++i < n) {
-        x = assignments[i];
-        d = newCentroids[x];
-        if (d == null) newCentroids[x] = vectors[i].slice();
-        else {
-          j = -1; while (++j < d.length) {
-            d[j] += vectors[i][j];
-          }
-        }
-      }
-      j = -1; while (++j < k) {
-        x = newCentroids[j];
-        d = 1 / clusterSizes[j];
-        i = -1; while (++i < x.length) x[i] *= d;
-      }
-
-      // Check convergence.
-      repeat = 0;
-      j = -1; while (++j < k) {
-        if (!science_stats_kmeansCompare(newCentroids[j], centroids[j])) {
-          repeat = 1;
-          break;
-        }
-      }
-      centroids = newCentroids;
-      iterations++;
-    }
-    return {assignments: assignments, centroids: centroids};
-  }
-
-  kmeans.k = function(x) {
-    if (!arguments.length) return k;
-    k = x;
-    return kmeans;
-  };
-
-  kmeans.distance = function(x) {
-    if (!arguments.length) return distance;
-    distance = x;
-    return kmeans;
-  };
-
-  return kmeans;
-};
-
-function science_stats_kmeansCompare(a, b) {
-  if (!a || !b || a.length !== b.length) return false;
-  var n = a.length,
-      i = -1;
-  while (++i < n) if (a[i] !== b[i]) return false;
-  return true;
 }
 
-// Returns an array of k distinct vectors randomly selected from the input
-// array of vectors. Returns null if k > n or if there are less than k distinct
-// objects in vectors.
-function science_stats_kmeansRandom(k, vectors) {
-  var n = vectors.length;
-  if (k > n) return null;
-  
-  var selected_vectors = [];
-  var selected_indices = [];
-  var tested_indices = {};
-  var tested = 0;
-  var selected = 0;
-  var i,
-      vector,
-      select;
-
-  while (selected < k) {
-    if (tested === n) return null;
-    
-    var random_index = Math.floor(Math.random() * n);
-    if (random_index in tested_indices) continue;
-    
-    tested_indices[random_index] = 1;
-    tested++;
-    vector = vectors[random_index];
-    select = true;
-    for (i = 0; i < selected; i++) {
-      if (science_stats_kmeansCompare(vector, selected_vectors[i])) {
-        select = false;
-        break;
-      }
-    }
-    if (select) {
-      selected_vectors[selected] = vector;
-      selected_indices[selected] = random_index;
-      selected++;
-    }
-  }
-  return selected_vectors;
-}
-science.stats.hcluster = function() {
+function hcluster() {
   var distance = science.stats.distance.euclidean,
       linkage = "single"; // single, complete or average
 
@@ -1398,7 +1301,7 @@ science.stats.hcluster = function() {
   };
 
   return hcluster;
-};
+}
 
 function calculateCentroid(c1Size, c1Centroid, c2Size, c2Centroid) {
   var newCentroid = [],
@@ -1410,13 +1313,244 @@ function calculateCentroid(c1Size, c1Centroid, c2Size, c2Centroid) {
   }
   return newCentroid;
 }
-science.stats.iqr = function(x) {
+
+function iqr(x) {
   var quartiles = science.stats.quantiles(x, [.25, .75]);
   return quartiles[1] - quartiles[0];
-};
+}
+
+// http://exploringdata.net/den_trac.htm
+function kde() {
+  var kernel = science.stats.kernel.gaussian,
+      sample = [],
+      bandwidth = science.stats.bandwidth.nrd;
+
+  function kde(points, i) {
+    var bw = bandwidth.call(this, sample);
+    return points.map(function(x) {
+      var i = -1,
+          y = 0,
+          n = sample.length;
+      while (++i < n) {
+        y += kernel((x - sample[i]) / bw);
+      }
+      return [x, y / bw / n];
+    });
+  }
+
+  kde.kernel = function(x) {
+    if (!arguments.length) return kernel;
+    kernel = x;
+    return kde;
+  };
+
+  kde.sample = function(x) {
+    if (!arguments.length) return sample;
+    sample = x;
+    return kde;
+  };
+
+  kde.bandwidth = function(x) {
+    if (!arguments.length) return bandwidth;
+    bandwidth = science.functor(x);
+    return kde;
+  };
+
+  return kde;
+}
+
+// See <http://en.wikipedia.org/wiki/Kernel_(statistics)>.
+function uniform(u) {
+	if (u <= 1 && u >= -1) return .5;
+	return 0;
+}
+
+function triangular(u) {
+	if (u <= 1 && u >= -1) return 1 - Math.abs(u);
+	return 0;
+}
+
+function epanechnikov(u) {
+	if (u <= 1 && u >= -1) return .75 * (1 - u * u);
+	return 0;
+}
+
+function quartic(u) {
+	if (u <= 1 && u >= -1) {
+		const tmp = 1 - u * u;
+		return (15 / 16) * tmp * tmp;
+	}
+	return 0;
+}
+
+function triweight(u) {
+	if (u <= 1 && u >= -1) {
+		const tmp = 1 - u * u;
+		return (35 / 32) * tmp * tmp * tmp;
+	}
+	return 0;
+}
+
+function gaussian$1(u) {
+	return 1 / Math.sqrt(2 * Math.PI) * Math.exp(-.5 * u * u);
+}
+
+function cosine(u) {
+	if (u <= 1 && u >= -1) return Math.PI / 4 * Math.cos(Math.PI / 2 * u);
+	return 0;
+}
+
+
+var kernel_ = Object.freeze({
+	uniform: uniform,
+	triangular: triangular,
+	epanechnikov: epanechnikov,
+	quartic: quartic,
+	triweight: triweight,
+	gaussian: gaussian$1,
+	cosine: cosine
+});
+
+// Based on figue implementation by Jean-Yves Delort.
+// http://code.google.com/p/figue/
+function kmeans() {
+  var distance = science.stats.distance.euclidean,
+      maxIterations = 1000,
+      k = 1;
+
+  function kmeans(vectors) {
+    var n = vectors.length,
+        assignments = [],
+        clusterSizes = [],
+        repeat = 1,
+        iterations = 0,
+        centroids = science_stats_kmeansRandom(k, vectors),
+        newCentroids,
+        i,
+        j,
+        x,
+        d,
+        min,
+        best;
+
+    while (repeat && iterations < maxIterations) {
+      // Assignment step.
+      j = -1; while (++j < k) {
+        clusterSizes[j] = 0;
+      }
+
+      i = -1; while (++i < n) {
+        x = vectors[i];
+        min = Infinity;
+        j = -1; while (++j < k) {
+          d = distance.call(this, centroids[j], x);
+          if (d < min) {
+            min = d;
+            best = j;
+          }
+        }
+        clusterSizes[assignments[i] = best]++;
+      }
+
+      // Update centroids step.
+      newCentroids = [];
+      i = -1; while (++i < n) {
+        x = assignments[i];
+        d = newCentroids[x];
+        if (d == null) newCentroids[x] = vectors[i].slice();
+        else {
+          j = -1; while (++j < d.length) {
+            d[j] += vectors[i][j];
+          }
+        }
+      }
+      j = -1; while (++j < k) {
+        x = newCentroids[j];
+        d = 1 / clusterSizes[j];
+        i = -1; while (++i < x.length) x[i] *= d;
+      }
+
+      // Check convergence.
+      repeat = 0;
+      j = -1; while (++j < k) {
+        if (!science_stats_kmeansCompare(newCentroids[j], centroids[j])) {
+          repeat = 1;
+          break;
+        }
+      }
+      centroids = newCentroids;
+      iterations++;
+    }
+    return {assignments: assignments, centroids: centroids};
+  }
+
+  kmeans.k = function(x) {
+    if (!arguments.length) return k;
+    k = x;
+    return kmeans;
+  };
+
+  kmeans.distance = function(x) {
+    if (!arguments.length) return distance;
+    distance = x;
+    return kmeans;
+  };
+
+  return kmeans;
+}
+
+function science_stats_kmeansCompare(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  var n = a.length,
+      i = -1;
+  while (++i < n) if (a[i] !== b[i]) return false;
+  return true;
+}
+
+// Returns an array of k distinct vectors randomly selected from the input
+// array of vectors. Returns null if k > n or if there are less than k distinct
+// objects in vectors.
+function science_stats_kmeansRandom(k, vectors) {
+  var n = vectors.length;
+  if (k > n) return null;
+  
+  var selected_vectors = [];
+  var selected_indices = [];
+  var tested_indices = {};
+  var tested = 0;
+  var selected = 0;
+  var i,
+      vector,
+      select;
+
+  while (selected < k) {
+    if (tested === n) return null;
+    
+    var random_index = Math.floor(Math.random() * n);
+    if (random_index in tested_indices) continue;
+    
+    tested_indices[random_index] = 1;
+    tested++;
+    vector = vectors[random_index];
+    select = true;
+    for (i = 0; i < selected; i++) {
+      if (science_stats_kmeansCompare(vector, selected_vectors[i])) {
+        select = false;
+        break;
+      }
+    }
+    if (select) {
+      selected_vectors[selected] = vector;
+      selected_indices[selected] = random_index;
+      selected++;
+    }
+  }
+  return selected_vectors;
+}
+
 // Based on org.apache.commons.math.analysis.interpolation.LoessInterpolator
 // from http://commons.apache.org/math/
-science.stats.loess = function() {
+function loess() {
   var bandwidth = .3,
       robustnessIters = 2,
       accuracy = 1e-12;
@@ -1564,7 +1698,7 @@ science.stats.loess = function() {
   };
 
   return smooth;
-};
+}
 
 function science_stats_loessFiniteReal(values) {
   var n = values.length,
@@ -1614,19 +1748,22 @@ function science_stats_loessNextNonzero(weights, i) {
   while (j < weights.length && weights[j] === 0) j++;
   return j;
 }
+
 // Welford's algorithm.
-science.stats.mean = function(x) {
+function mean(x) {
   var n = x.length;
   if (n === 0) return NaN;
   var m = 0,
       i = -1;
   while (++i < n) m += (x[i] - m) / (i + 1);
   return m;
-};
-science.stats.median = function(x) {
+}
+
+function median(x) {
   return science.stats.quantiles(x, [.5])[0];
-};
-science.stats.mode = function(x) {
+}
+
+function mode(x) {
   var counts = {},
       mode = [],
       max = 0,
@@ -1643,9 +1780,14 @@ science.stats.mode = function(x) {
     }
   }
   if (mode.length === 1) return mode[0];
-};
+}
+
+function phi(x) {
+  return .5 * (1 + science.stats.erf(x / Math.SQRT2));
+}
+
 // Uses R's quantile algorithm type=7.
-science.stats.quantiles = function(d, quantiles) {
+function quantiles(d, quantiles) {
   d = d.slice().sort(science.ascending);
   var n_1 = d.length - 1;
   return quantiles.map(function(q) {
@@ -1659,10 +1801,11 @@ science.stats.quantiles = function(d, quantiles) {
 
     return h === 0 ? a : a + h * (d[lo] - a);
   });
-};
+}
+
 // Unbiased estimate of a sample's variance.
 // Also known as the sample variance, where the denominator is n - 1.
-science.stats.variance = function(x) {
+function variance(x) {
   var n = x.length;
   if (n < 1) return NaN;
   if (n === 1) return 0;
@@ -1674,63 +1817,46 @@ science.stats.variance = function(x) {
     s += v * v;
   }
   return s / (n - 1);
-};
-science.stats.distribution = {
-};
-// From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
-// Uses the Box-Muller Transform.
-science.stats.distribution.gaussian = function() {
-  var random = Math.random,
-      mean = 0,
-      sigma = 1,
-      variance = 1;
+}
 
-  function gaussian() {
-    var x1,
-        x2,
-        rad,
-        y1;
+const distance = distance_;
+const kernel = kernel_;
+const distribution = distribution_;
+const bandwidth = bandwidth_;
 
-    do {
-      x1 = 2 * random() - 1;
-      x2 = 2 * random() - 1;
-      rad = x1 * x1 + x2 * x2;
-    } while (rad >= 1 || rad === 0);
+var stats_ = Object.freeze({
+	distance: distance,
+	kernel: kernel,
+	distribution: distribution,
+	bandwidth: bandwidth,
+	erf: erf,
+	hcluster: hcluster,
+	iqr: iqr,
+	kde: kde,
+	kmeans: kmeans,
+	loess: loess,
+	mean: mean,
+	median: median,
+	mode: mode,
+	phi: phi,
+	quantiles: quantiles,
+	variance: variance
+});
 
-    return mean + sigma * x1 * Math.sqrt(-2 * Math.log(rad) / rad);
-  }
+const lin = lin_;
+const stats = stats_;
 
-  gaussian.pdf = function(x) {
-    x = (x - mean) / sigma;
-    return science_stats_distribution_gaussianConstant * Math.exp(-.5 * x * x) / sigma;
-  };
+exports.lin = lin;
+exports.stats = stats;
+exports.version = version;
+exports.ascending = ascending;
+exports.EULER = EULER;
+exports.expm1 = expm1;
+exports.functor = functor;
+exports.hypot = hypot;
+exports.quadratic = quadratic;
+exports.zeroes = zeroes;
 
-  gaussian.cdf = function(x) {
-    x = (x - mean) / sigma;
-    return .5 * (1 + science.stats.erf(x / Math.SQRT2));
-  };
+Object.defineProperty(exports, '__esModule', { value: true });
 
-  gaussian.mean = function(x) {
-    if (!arguments.length) return mean;
-    mean = +x;
-    return gaussian;
-  };
-
-  gaussian.variance = function(x) {
-    if (!arguments.length) return variance;
-    sigma = Math.sqrt(variance = +x);
-    return gaussian;
-  };
-
-  gaussian.random = function(x) {
-    if (!arguments.length) return random;
-    random = x;
-    return gaussian;
-  };
-
-  return gaussian;
-};
-
-science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
-})(this);
-})(this);
+})));
