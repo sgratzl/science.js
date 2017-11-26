@@ -20,7 +20,7 @@
   "devDependencies": {
     "rollup": "^0.52.0",
     "uglify-js": "^2.8.11",
-    "vows": "^0.6.0"
+    "vows": "^0.8.0"
   },
   "files": [
     "src",
