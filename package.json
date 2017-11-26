@@ -28,9 +28,11 @@
     "science.v1.min.js"
   ],
   "scripts": {
-    "prepublish": "npm run test && uglifyjs science.v1.js -c -m -o science.v1.min.js",
-    "build": "rollup -c",
-    "pretest": "npm run build",
+    "prepublish": "npm run test && npm run build",
+    "watch": "rollup -c --watch",
+    "build:dev": "rollup -c",
+    "build": "npm run build:dev && uglifyjs science.v1.js -c -m -o science.v1.min.js",
+    "pretest": "npm run build:dev",
     "test": "vows"
   }
 }
