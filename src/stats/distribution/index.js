@@ -1,2 +1,1 @@
-science.stats.distribution = {
-};
+export {default as gaussian} from './gaussian';
