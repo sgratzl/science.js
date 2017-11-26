@@ -1,5 +1,5 @@
 // Based on implementation in http://picomath.org/.
-science.stats.erf = function(x) {
+export default function erf(x) {
   var a1 =  0.254829592,
       a2 = -0.284496736,
       a3 =  1.421413741,

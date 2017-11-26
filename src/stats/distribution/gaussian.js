@@ -1,6 +1,6 @@
 // From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
 // Uses the Box-Muller Transform.
-science.stats.distribution.gaussian = function() {
+export default function gaussian() {
   var random = Math.random,
       mean = 0,
       sigma = 1,

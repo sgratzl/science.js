@@ -1,3 +1,3 @@
-science.ascending = function(a, b) {
+export default function ascending(a, b) {
   return a - b;
 };

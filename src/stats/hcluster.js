@@ -1,4 +1,4 @@
-science.stats.hcluster = function() {
+export default function hcluster() {
   var distance = science.stats.distance.euclidean,
       linkage = "single"; // single, complete or average
 

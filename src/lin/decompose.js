@@ -1,4 +1,4 @@
-science.lin.decompose = function() {
+export default function decompose() {
 
   function decompose(A) {
     var n = A.length, // column dimension

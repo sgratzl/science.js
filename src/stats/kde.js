@@ -1,5 +1,5 @@
 // http://exploringdata.net/den_trac.htm
-science.stats.kde = function() {
+export default function kde() {
   var kernel = science.stats.kernel.gaussian,
       sample = [],
       bandwidth = science.stats.bandwidth.nrd;

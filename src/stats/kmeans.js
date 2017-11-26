@@ -1,6 +1,6 @@
 // Based on figue implementation by Jean-Yves Delort.
 // http://code.google.com/p/figue/
-science.stats.kmeans = function() {
+export default function kmeans() {
   var distance = science.stats.distance.euclidean,
       maxIterations = 1000,
       k = 1;

@@ -2,7 +2,7 @@
 //
 // Based on Jarno Elonen's Python version (public domain):
 // http://elonen.iki.fi/code/misc-notes/python-gaussj/index.html
-science.lin.gaussjordan = function(m, eps) {
+export default function gaussjordan(m, eps) {
   if (!eps) eps = 1e-10;
 
   var h = m.length,

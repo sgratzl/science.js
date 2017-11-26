@@ -1,4 +1,4 @@
-science.lin.transpose = function(a) {
+export default function transpose(a) {
   var m = a.length,
       n = a[0].length,
       i = -1,

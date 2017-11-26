@@ -1,5 +1,5 @@
 // Uses R's quantile algorithm type=7.
-science.stats.quantiles = function(d, quantiles) {
+export default function quantiles(d, quantiles) {
   d = d.slice().sort(science.ascending);
   var n_1 = d.length - 1;
   return quantiles.map(function(q) {

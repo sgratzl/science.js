@@ -1,5 +1,5 @@
 // Welford's algorithm.
-science.stats.mean = function(x) {
+export default function mean(x) {
   var n = x.length;
   if (n === 0) return NaN;
   var m = 0,

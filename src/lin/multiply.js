@@ -1,4 +1,4 @@
-science.lin.multiply = function(a, b) {
+export default function multiply(a, b) {
   var m = a.length,
       n = b[0].length,
       p = b.length,

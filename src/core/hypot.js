@@ -1,6 +1,6 @@
 // Based on:
 // http://www.johndcook.com/blog/2010/06/02/whats-so-hard-about-finding-a-hypotenuse/
-science.hypot = function(x, y) {
+export default function hypot(x, y) {
   x = Math.abs(x);
   y = Math.abs(y);
   var max,

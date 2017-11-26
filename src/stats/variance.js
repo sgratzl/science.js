@@ -1,6 +1,6 @@
 // Unbiased estimate of a sample's variance.
 // Also known as the sample variance, where the denominator is n - 1.
-science.stats.variance = function(x) {
+export default function variance(x) {
   var n = x.length;
   if (n < 1) return NaN;
   if (n === 1) return 0;

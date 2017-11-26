@@ -1,6 +1,6 @@
 // Based on org.apache.commons.math.analysis.interpolation.LoessInterpolator
 // from http://commons.apache.org/math/
-science.stats.loess = function() {
+export default function loess() {
   var bandwidth = .3,
       robustnessIters = 2,
       accuracy = 1e-12;

@@ -1,4 +1,4 @@
-science.quadratic = function() {
+export default function quadratic() {
   var complex = false;
 
   function quadratic(a, b, c) {

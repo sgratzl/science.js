@@ -1,4 +1,4 @@
-science.stats.mode = function(x) {
+export default function mode(x) {
   var counts = {},
       mode = [],
       max = 0,

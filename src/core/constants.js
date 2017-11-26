@@ -1,2 +1,4 @@
-// Euler's constant.
-science.EULER = .5772156649015329;
+/**
+ * Euler's constant.
+ */
+export const EULER = .5772156649015329;

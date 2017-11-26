@@ -10,7 +10,7 @@
  * @param {number[]} x
  * @param {number} n
  */
-science.lin.tridag = function(a, b, c, d, x, n) {
+export default function tridag(a, b, c, d, x, n) {
   var i,
       m;
   for (i = 1; i < n; i++) {

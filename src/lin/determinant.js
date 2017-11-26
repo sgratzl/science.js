@@ -1,5 +1,5 @@
 // 4x4 matrix determinant.
-science.lin.determinant = function(matrix) {
+export default function determinant(matrix) {
   var m = matrix[0].concat(matrix[1]).concat(matrix[2]).concat(matrix[3]);
   return (
     m[12] * m[9]  * m[6]  * m[3]  - m[8] * m[13] * m[6]  * m[3]  -

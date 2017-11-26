@@ -1,4 +1,4 @@
-science.lin.cross = function(a, b) {
+export default function cross(a, b) {
   // TODO how to handle non-3D vectors?
   // TODO handle 7D vectors?
   return [

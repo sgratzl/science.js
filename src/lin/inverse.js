@@ -1,5 +1,5 @@
 // Find matrix inverse using Gauss-Jordan.
-science.lin.inverse = function(m) {
+export default function inverse(m) {
   var n = m.length,
       i = -1;
 

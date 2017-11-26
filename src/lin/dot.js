@@ -1,4 +1,4 @@
-science.lin.dot = function(a, b) {
+export default function dot(a, b) {
   var s = 0,
       i = -1,
       n = Math.min(a.length, b.length);
