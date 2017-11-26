@@ -276,7 +276,7 @@ function science_lin_decomposeTql2(d, e, V) {
       do {
         var g = d[l];
         var p = (d[l + 1] - g) / (2 * e[l]);
-        var r = science.hypot(p, 1);
+        var r = hypot(p, 1);
         if (p < 0) r = -r;
         d[l] = e[l] / (p + r);
         d[l + 1] = e[l] * (p + r);
@@ -299,7 +299,7 @@ function science_lin_decomposeTql2(d, e, V) {
           s2 = s;
           g = c * e[i];
           h = c * p;
-          r = science.hypot(p,e[i]);
+          r = hypot(p,e[i]);
           e[i + 1] = s * r;
           s = e[i] / r;
           c = p / r;
@@ -904,7 +904,7 @@ function inverse(m) {
   });
 
   // Compute IA^-1.
-  science.lin.gaussjordan(m);
+  gaussjordan(m);
 
   // Remove identity matrix I to get A^-1.
   while (++i < n) {
@@ -915,7 +915,7 @@ function inverse(m) {
 }
 
 function length(p) {
-  return Math.sqrt(science.lin.dot(p, p));
+  return Math.sqrt(dot(p, p));
 }
 
 function multiply(a, b) {
@@ -939,8 +939,8 @@ function multiply(a, b) {
 }
 
 function normalize(p) {
-  var length = science.lin.length(p);
-  return p.map(function(d) { return d / length; });
+  var length$$1 = length(p);
+  return p.map(function(d) { return d / length$$1; });
 }
 
 function transpose(a) {
@@ -998,6 +998,29 @@ var lin_ = Object.freeze({
 	tridag: tridag
 });
 
+// Based on implementation in http://picomath.org/.
+function erf(x) {
+  var a1 =  0.254829592,
+      a2 = -0.284496736,
+      a3 =  1.421413741,
+      a4 = -1.453152027,
+      a5 =  1.061405429,
+      p  =  0.3275911;
+
+  // Save the sign of x
+  var sign = x < 0 ? -1 : 1;
+  if (x < 0) {
+    sign = -1;
+    x = -x;
+  }
+
+  // A&S formula 7.1.26
+  var t = 1 / (1 + p * x);
+  return sign * (
+    1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
+    * t * Math.exp(-x * x));
+}
+
 // From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
 // Uses the Box-Muller Transform.
 function gaussian() {
@@ -1027,7 +1050,7 @@ function gaussian() {
 
   gaussian.cdf = function(x) {
     x = (x - mean) / sigma;
-    return .5 * (1 + science.stats.erf(x / Math.SQRT2));
+    return .5 * (1 + erf(x / Math.SQRT2));
   };
 
   gaussian.mean = function(x) {
@@ -1051,7 +1074,7 @@ function gaussian() {
   return gaussian;
 }
 
-science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+const science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
 
 
 
@@ -1059,13 +1082,62 @@ var distribution_ = Object.freeze({
 	gaussian: gaussian
 });
 
+// Welford's algorithm.
+function mean(x) {
+  var n = x.length;
+  if (n === 0) return NaN;
+  var m = 0,
+      i = -1;
+  while (++i < n) m += (x[i] - m) / (i + 1);
+  return m;
+}
+
+// Unbiased estimate of a sample's variance.
+// Also known as the sample variance, where the denominator is n - 1.
+function variance(x) {
+  var n = x.length;
+  if (n < 1) return NaN;
+  if (n === 1) return 0;
+  var mean$$1 = mean(x),
+      i = -1,
+      s = 0;
+  while (++i < n) {
+    var v = x[i] - mean$$1;
+    s += v * v;
+  }
+  return s / (n - 1);
+}
+
+// Uses R's quantile algorithm type=7.
+function quantiles(d, quantiles) {
+  d = d.slice().sort(ascending);
+  var n_1 = d.length - 1;
+  return quantiles.map(function(q) {
+    if (q === 0) return d[0];
+    else if (q === 1) return d[n_1];
+
+    var index = 1 + q * n_1,
+        lo = Math.floor(index),
+        h = index - lo,
+        a = d[lo - 1];
+
+    return h === 0 ? a : a + h * (d[lo] - a);
+  });
+}
+
+function iqr(x) {
+  var quartiles = quantiles(x, [.25, .75]);
+  return quartiles[1] - quartiles[0];
+}
+
 // Bandwidth selectors for Gaussian kernels.
 // Based on R's implementations in `stats.bw`.
 
 // Silverman, B. W. (1986) Density Estimation. London: Chapman and Hall.
 function nrd0(x) {
-    var hi = Math.sqrt(science.stats.variance(x));
-    if (!(lo = Math.min(hi, science.stats.iqr(x) / 1.34)))
+    var lo;
+    var hi = Math.sqrt(variance(x));
+    if (!(lo = Math.min(hi, iqr(x) / 1.34)))
         (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
     return .9 * lo * Math.pow(x.length, -.2);
 }
@@ -1073,8 +1145,8 @@ function nrd0(x) {
 // Scott, D. W. (1992) Multivariate Density Estimation: Theory, Practice, and
 // Visualization. Wiley.
 function nrd(x) {
-    var h = science.stats.iqr(x) / 1.34;
-    return 1.06 * Math.min(Math.sqrt(science.stats.variance(x)), h)
+    var h = iqr(x) / 1.34;
+    return 1.06 * Math.min(Math.sqrt(variance(x)), h)
         * Math.pow(x.length, -1 / 5);
 }
 
@@ -1168,31 +1240,8 @@ var distance_ = Object.freeze({
 	braycurtis: braycurtis
 });
 
-// Based on implementation in http://picomath.org/.
-function erf(x) {
-  var a1 =  0.254829592,
-      a2 = -0.284496736,
-      a3 =  1.421413741,
-      a4 = -1.453152027,
-      a5 =  1.061405429,
-      p  =  0.3275911;
-
-  // Save the sign of x
-  var sign = x < 0 ? -1 : 1;
-  if (x < 0) {
-    sign = -1;
-    x = -x;
-  }
-
-  // A&S formula 7.1.26
-  var t = 1 / (1 + p * x);
-  return sign * (
-    1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
-    * t * Math.exp(-x * x));
-}
-
 function hcluster() {
-  var distance = science.stats.distance.euclidean,
+  var distance = euclidean,
       linkage = "single"; // single, complete or average
 
   function hcluster(vectors) {
@@ -1314,51 +1363,6 @@ function calculateCentroid(c1Size, c1Centroid, c2Size, c2Centroid) {
   return newCentroid;
 }
 
-function iqr(x) {
-  var quartiles = science.stats.quantiles(x, [.25, .75]);
-  return quartiles[1] - quartiles[0];
-}
-
-// http://exploringdata.net/den_trac.htm
-function kde() {
-  var kernel = science.stats.kernel.gaussian,
-      sample = [],
-      bandwidth = science.stats.bandwidth.nrd;
-
-  function kde(points, i) {
-    var bw = bandwidth.call(this, sample);
-    return points.map(function(x) {
-      var i = -1,
-          y = 0,
-          n = sample.length;
-      while (++i < n) {
-        y += kernel((x - sample[i]) / bw);
-      }
-      return [x, y / bw / n];
-    });
-  }
-
-  kde.kernel = function(x) {
-    if (!arguments.length) return kernel;
-    kernel = x;
-    return kde;
-  };
-
-  kde.sample = function(x) {
-    if (!arguments.length) return sample;
-    sample = x;
-    return kde;
-  };
-
-  kde.bandwidth = function(x) {
-    if (!arguments.length) return bandwidth;
-    bandwidth = science.functor(x);
-    return kde;
-  };
-
-  return kde;
-}
-
 // See <http://en.wikipedia.org/wiki/Kernel_(statistics)>.
 function uniform(u) {
 	if (u <= 1 && u >= -1) return .5;
@@ -1411,10 +1415,50 @@ var kernel_ = Object.freeze({
 	cosine: cosine
 });
 
+// http://exploringdata.net/den_trac.htm
+function kde() {
+  var kernel = gaussian$1,
+      sample = [],
+      bandwidth = nrd;
+
+  function kde(points, i) {
+    var bw = bandwidth.call(this, sample);
+    return points.map(function(x) {
+      var i = -1,
+          y = 0,
+          n = sample.length;
+      while (++i < n) {
+        y += kernel((x - sample[i]) / bw);
+      }
+      return [x, y / bw / n];
+    });
+  }
+
+  kde.kernel = function(x) {
+    if (!arguments.length) return kernel;
+    kernel = x;
+    return kde;
+  };
+
+  kde.sample = function(x) {
+    if (!arguments.length) return sample;
+    sample = x;
+    return kde;
+  };
+
+  kde.bandwidth = function(x) {
+    if (!arguments.length) return bandwidth;
+    bandwidth = functor(x);
+    return kde;
+  };
+
+  return kde;
+}
+
 // Based on figue implementation by Jean-Yves Delort.
 // http://code.google.com/p/figue/
 function kmeans() {
-  var distance = science.stats.distance.euclidean,
+  var distance = euclidean,
       maxIterations = 1000,
       k = 1;
 
@@ -1548,6 +1592,10 @@ function science_stats_kmeansRandom(k, vectors) {
   return selected_vectors;
 }
 
+function median(x) {
+  return quantiles(x, [.5])[0];
+}
+
 // Based on org.apache.commons.math.analysis.interpolation.LoessInterpolator
 // from http://commons.apache.org/math/
 function loess() {
@@ -1663,7 +1711,7 @@ function loess() {
       // Recompute the robustness weights.
 
       // Find the median residual.
-      var medianResidual = science.stats.median(residuals);
+      var medianResidual = median(residuals);
 
       if (Math.abs(medianResidual) < accuracy)
         break;
@@ -1749,20 +1797,6 @@ function science_stats_loessNextNonzero(weights, i) {
   return j;
 }
 
-// Welford's algorithm.
-function mean(x) {
-  var n = x.length;
-  if (n === 0) return NaN;
-  var m = 0,
-      i = -1;
-  while (++i < n) m += (x[i] - m) / (i + 1);
-  return m;
-}
-
-function median(x) {
-  return science.stats.quantiles(x, [.5])[0];
-}
-
 function mode(x) {
   var counts = {},
       mode = [],
@@ -1783,40 +1817,7 @@ function mode(x) {
 }
 
 function phi(x) {
-  return .5 * (1 + science.stats.erf(x / Math.SQRT2));
-}
-
-// Uses R's quantile algorithm type=7.
-function quantiles(d, quantiles) {
-  d = d.slice().sort(science.ascending);
-  var n_1 = d.length - 1;
-  return quantiles.map(function(q) {
-    if (q === 0) return d[0];
-    else if (q === 1) return d[n_1];
-
-    var index = 1 + q * n_1,
-        lo = Math.floor(index),
-        h = index - lo,
-        a = d[lo - 1];
-
-    return h === 0 ? a : a + h * (d[lo] - a);
-  });
-}
-
-// Unbiased estimate of a sample's variance.
-// Also known as the sample variance, where the denominator is n - 1.
-function variance(x) {
-  var n = x.length;
-  if (n < 1) return NaN;
-  if (n === 1) return 0;
-  var mean = science.stats.mean(x),
-      i = -1,
-      s = 0;
-  while (++i < n) {
-    var v = x[i] - mean;
-    s += v * v;
-  }
-  return s / (n - 1);
+  return .5 * (1 + erf(x / Math.SQRT2));
 }
 
 const distance = distance_;
