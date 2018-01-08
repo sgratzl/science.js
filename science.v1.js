@@ -11,17 +11,19 @@ function ascending(a, b) {
 /**
  * Euler's constant.
  */
-const EULER = .5772156649015329;
+var EULER = .5772156649015329;
 
 /**
 Compute exp(x) - 1 accurately for small x.
  */
 function expm1(x) {
-  return (x < 1e-5 && x > -1e-5) ? x + .5 * x * x : Math.exp(x) - 1;
+  return x < 1e-5 && x > -1e-5 ? x + .5 * x * x : Math.exp(x) - 1;
 }
 
 function functor(v) {
-  return typeof v === "function" ? v : function() { return v; };
+  return typeof v === "function" ? v : function () {
+    return v;
+  };
 }
 
 // Based on:
@@ -29,10 +31,12 @@ function functor(v) {
 function hypot(x, y) {
   x = Math.abs(x);
   y = Math.abs(y);
-  var max,
-      min;
-  if (x > y) { max = x; min = y; }
-  else       { max = y; min = x; }
+  var max, min;
+  if (x > y) {
+    max = x;min = y;
+  } else {
+    max = y;min = x;
+  }
   var r = min / max;
   return max * Math.sqrt(1 + r * r);
 }
@@ -44,25 +48,20 @@ function quadratic() {
     var d = b * b - 4 * a * c;
     if (d > 0) {
       d = Math.sqrt(d) / (2 * a);
-      return complex
-        ? [{r: -b - d, i: 0}, {r: -b + d, i: 0}]
-        : [-b - d, -b + d];
+      return complex ? [{ r: -b - d, i: 0 }, { r: -b + d, i: 0 }] : [-b - d, -b + d];
     } else if (d === 0) {
       d = -b / (2 * a);
-      return complex ? [{r: d, i: 0}] : [d];
+      return complex ? [{ r: d, i: 0 }] : [d];
     } else {
       if (complex) {
         d = Math.sqrt(-d) / (2 * a);
-        return [
-          {r: -b, i: -d},
-          {r: -b, i: d}
-        ];
+        return [{ r: -b, i: -d }, { r: -b, i: d }];
       }
       return [];
     }
   }
 
-  quadratic.complex = function(x) {
+  quadratic.complex = function (x) {
     if (!arguments.length) return complex;
     complex = x;
     return quadratic;
@@ -77,33 +76,27 @@ function quadratic() {
 function zeroes(n) {
   var i = -1,
       a = [];
-  if (arguments.length === 1)
-    while (++i < n)
-      a[i] = 0;
-  else
-    while (++i < n)
-      a[i] = zeroes.apply(
-        this, Array.prototype.slice.call(arguments, 1));
-  return a;
+  if (arguments.length === 1) while (++i < n) {
+    a[i] = 0;
+  } else while (++i < n) {
+    a[i] = zeroes.apply(this, Array.prototype.slice.call(arguments, 1));
+  }return a;
 }
 
-const version = "1.9.3"; // semver
+var version = "1.9.3"; // semver
 
 function cross(a, b) {
   // TODO how to handle non-3D vectors?
   // TODO handle 7D vectors?
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0]
-  ];
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 
 function decompose() {
 
   function decompose(A) {
-    var n = A.length, // column dimension
-        V = [],
+    var n = A.length,
+        // column dimension
+    V = [],
         d = [],
         e = [];
 
@@ -124,18 +117,18 @@ function decompose() {
     }
 
     if (symmetric) {
-      for (var i = 0; i < n; i++) V[i] = A[i].slice();
-
-      // Tridiagonalize.
+      for (var i = 0; i < n; i++) {
+        V[i] = A[i].slice();
+      } // Tridiagonalize.
       science_lin_decomposeTred2(d, e, V);
 
       // Diagonalize.
       science_lin_decomposeTql2(d, e, V);
     } else {
       var H = [];
-      for (var i = 0; i < n; i++) H[i] = A[i].slice();
-
-      // Reduce to Hessenberg form.
+      for (var i = 0; i < n; i++) {
+        H[i] = A[i].slice();
+      } // Reduce to Hessenberg form.
       science_lin_decomposeOrthes(H, V);
 
       // Reduce Hessenberg to real Schur form.
@@ -145,10 +138,11 @@ function decompose() {
     var D = [];
     for (var i = 0; i < n; i++) {
       var row = D[i] = [];
-      for (var j = 0; j < n; j++) row[j] = i === j ? d[i] : 0;
-      D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
+      for (var j = 0; j < n; j++) {
+        row[j] = i === j ? d[i] : 0;
+      }D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
     }
-    return {D: D, V: V};
+    return { D: D, V: V };
   }
 
   return decompose;
@@ -163,16 +157,17 @@ function science_lin_decomposeTred2(d, e, V) {
 
   var n = V.length;
 
-  for (var j = 0; j < n; j++) d[j] = V[n - 1][j];
-
-  // Householder reduction to tridiagonal form.
+  for (var j = 0; j < n; j++) {
+    d[j] = V[n - 1][j];
+  } // Householder reduction to tridiagonal form.
   for (var i = n - 1; i > 0; i--) {
     // Scale to avoid under/overflow.
 
     var scale = 0,
         h = 0;
-    for (var k = 0; k < i; k++) scale += Math.abs(d[k]);
-    if (scale === 0) {
+    for (var k = 0; k < i; k++) {
+      scale += Math.abs(d[k]);
+    }if (scale === 0) {
       e[i] = d[i - 1];
       for (var j = 0; j < i; j++) {
         d[j] = V[i - 1][j];
@@ -191,15 +186,15 @@ function science_lin_decomposeTred2(d, e, V) {
       e[i] = scale * g;
       h = h - f * g;
       d[i - 1] = f - g;
-      for (var j = 0; j < i; j++) e[j] = 0;
-
-      // Apply similarity transformation to remaining columns.
+      for (var j = 0; j < i; j++) {
+        e[j] = 0;
+      } // Apply similarity transformation to remaining columns.
 
       for (var j = 0; j < i; j++) {
         f = d[j];
         V[j][i] = f;
         g = e[j] + V[j][j] * f;
-        for (var k = j+1; k <= i - 1; k++) {
+        for (var k = j + 1; k <= i - 1; k++) {
           g += V[k][j] * d[k];
           e[k] += V[k][j] * f;
         }
@@ -211,12 +206,14 @@ function science_lin_decomposeTred2(d, e, V) {
         f += e[j] * d[j];
       }
       var hh = f / (h + h);
-      for (var j = 0; j < i; j++) e[j] -= hh * d[j];
       for (var j = 0; j < i; j++) {
+        e[j] -= hh * d[j];
+      }for (var j = 0; j < i; j++) {
         f = d[j];
         g = e[j];
-        for (var k = j; k <= i - 1; k++) V[k][j] -= (f * e[k] + g * d[k]);
-        d[j] = V[i - 1][j];
+        for (var k = j; k <= i - 1; k++) {
+          V[k][j] -= f * e[k] + g * d[k];
+        }d[j] = V[i - 1][j];
         V[i][j] = 0;
       }
     }
@@ -229,14 +226,20 @@ function science_lin_decomposeTred2(d, e, V) {
     V[i][i] = 1.0;
     var h = d[i + 1];
     if (h != 0) {
-      for (var k = 0; k <= i; k++) d[k] = V[k][i + 1] / h;
-      for (var j = 0; j <= i; j++) {
+      for (var k = 0; k <= i; k++) {
+        d[k] = V[k][i + 1] / h;
+      }for (var j = 0; j <= i; j++) {
         var g = 0;
-        for (var k = 0; k <= i; k++) g += V[k][i + 1] * V[k][j];
-        for (var k = 0; k <= i; k++) V[k][j] -= g * d[k];
+        for (var k = 0; k <= i; k++) {
+          g += V[k][i + 1] * V[k][j];
+        }for (var k = 0; k <= i; k++) {
+          V[k][j] -= g * d[k];
+        }
       }
     }
-    for (var k = 0; k <= i; k++) V[k][i + 1] = 0;
+    for (var k = 0; k <= i; k++) {
+      V[k][i + 1] = 0;
+    }
   }
   for (var j = 0; j < n; j++) {
     d[j] = V[n - 1][j];
@@ -255,8 +258,9 @@ function science_lin_decomposeTql2(d, e, V) {
 
   var n = V.length;
 
-  for (var i = 1; i < n; i++) e[i - 1] = e[i];
-  e[n - 1] = 0;
+  for (var i = 1; i < n; i++) {
+    e[i - 1] = e[i];
+  }e[n - 1] = 0;
 
   var f = 0;
   var tst1 = 0;
@@ -266,7 +270,9 @@ function science_lin_decomposeTql2(d, e, V) {
     tst1 = Math.max(tst1, Math.abs(d[l]) + Math.abs(e[l]));
     var m = l;
     while (m < n) {
-      if (Math.abs(e[m]) <= eps*tst1) { break; }
+      if (Math.abs(e[m]) <= eps * tst1) {
+        break;
+      }
       m++;
     }
 
@@ -282,8 +288,9 @@ function science_lin_decomposeTql2(d, e, V) {
         d[l + 1] = e[l] * (p + r);
         var dl1 = d[l + 1];
         var h = g - d[l];
-        for (var i = l+2; i < n; i++) d[i] -= h;
-        f += h;
+        for (var i = l + 2; i < n; i++) {
+          d[i] -= h;
+        }f += h;
 
         // Implicit QL transformation.
         p = d[m];
@@ -299,7 +306,7 @@ function science_lin_decomposeTql2(d, e, V) {
           s2 = s;
           g = c * e[i];
           h = c * p;
-          r = hypot(p,e[i]);
+          r = hypot(p, e[i]);
           e[i + 1] = s * r;
           s = e[i] / r;
           c = p / r;
@@ -318,7 +325,7 @@ function science_lin_decomposeTql2(d, e, V) {
         d[l] = c * p;
 
         // Check for convergence.
-      } while (Math.abs(e[l]) > eps*tst1);
+      } while (Math.abs(e[l]) > eps * tst1);
     }
     d[l] = d[l] + f;
     e[l] = 0;
@@ -362,9 +369,9 @@ function science_lin_decomposeOrthes(H, V) {
   for (var m = low + 1; m < high; m++) {
     // Scale column.
     var scale = 0;
-    for (var i = m; i <= high; i++) scale += Math.abs(H[i][m - 1]);
-
-    if (scale !== 0) {
+    for (var i = m; i <= high; i++) {
+      scale += Math.abs(H[i][m - 1]);
+    }if (scale !== 0) {
       // Compute Householder transformation.
       var h = 0;
       for (var i = high; i >= m; i--) {
@@ -380,16 +387,22 @@ function science_lin_decomposeOrthes(H, V) {
       // H = (I-u*u'/h)*H*(I-u*u')/h)
       for (var j = m; j < n; j++) {
         var f = 0;
-        for (var i = high; i >= m; i--) f += ort[i] * H[i][j];
-        f /= h;
-        for (var i = m; i <= high; i++) H[i][j] -= f * ort[i];
+        for (var i = high; i >= m; i--) {
+          f += ort[i] * H[i][j];
+        }f /= h;
+        for (var i = m; i <= high; i++) {
+          H[i][j] -= f * ort[i];
+        }
       }
 
       for (var i = 0; i <= high; i++) {
         var f = 0;
-        for (var j = high; j >= m; j--) f += ort[j] * H[i][j];
-        f /= h;
-        for (var j = m; j <= high; j++) H[i][j] -= f * ort[j];
+        for (var j = high; j >= m; j--) {
+          f += ort[j] * H[i][j];
+        }f /= h;
+        for (var j = m; j <= high; j++) {
+          H[i][j] -= f * ort[j];
+        }
       }
       ort[m] = scale * ort[m];
       H[m][m - 1] = scale * g;
@@ -398,18 +411,24 @@ function science_lin_decomposeOrthes(H, V) {
 
   // Accumulate transformations (Algol's ortran).
   for (var i = 0; i < n; i++) {
-    for (var j = 0; j < n; j++) V[i][j] = i === j ? 1 : 0;
+    for (var j = 0; j < n; j++) {
+      V[i][j] = i === j ? 1 : 0;
+    }
   }
 
-  for (var m = high-1; m >= low+1; m--) {
+  for (var m = high - 1; m >= low + 1; m--) {
     if (H[m][m - 1] !== 0) {
-      for (var i = m + 1; i <= high; i++) ort[i] = H[i][m - 1];
-      for (var j = m; j <= high; j++) {
+      for (var i = m + 1; i <= high; i++) {
+        ort[i] = H[i][m - 1];
+      }for (var j = m; j <= high; j++) {
         var g = 0;
-        for (var i = m; i <= high; i++) g += ort[i] * V[i][j];
-        // Double division avoids possible underflow
-        g = (g / ort[m]) / H[m][m - 1];
-        for (var i = m; i <= high; i++) V[i][j] += g * ort[i];
+        for (var i = m; i <= high; i++) {
+          g += ort[i] * V[i][j];
+        } // Double division avoids possible underflow
+        g = g / ort[m] / H[m][m - 1];
+        for (var i = m; i <= high; i++) {
+          V[i][j] += g * ort[i];
+        }
       }
     }
   }
@@ -445,7 +464,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       d[i] = H[i][i];
       e[i] = 0;
     }
-    for (var j = Math.max(i - 1, 0); j < nn; j++) norm += Math.abs(H[i][j]);
+    for (var j = Math.max(i - 1, 0); j < nn; j++) {
+      norm += Math.abs(H[i][j]);
+    }
   }
 
   // Outer loop over eigenvalue index
@@ -469,7 +490,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       n--;
       iter = 0;
 
-    // Two roots found
+      // Two roots found
     } else if (l === n - 1) {
       w = H[n][n - 1] * H[n - 1][n];
       p = (H[n - 1][n - 1] - H[n][n]) / 2;
@@ -491,7 +512,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         s = Math.abs(x) + Math.abs(z);
         p = x / s;
         q = z / s;
-        r = Math.sqrt(p * p+q * q);
+        r = Math.sqrt(p * p + q * q);
         p /= r;
         q /= r;
 
@@ -544,7 +565,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         for (var i = low; i <= n; i++) {
           H[i][i] -= x;
         }
-        s = Math.abs(H[n][n - 1]) + Math.abs(H[n - 1][n-2]);
+        s = Math.abs(H[n][n - 1]) + Math.abs(H[n - 1][n - 2]);
         x = y = 0.75 * s;
         w = -0.4375 * s * s;
       }
@@ -567,42 +588,40 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         }
       }
 
-      iter++;   // (Could check iteration count here.)
+      iter++; // (Could check iteration count here.)
 
       // Look for two consecutive small sub-diagonal elements
-      var m = n-2;
+      var m = n - 2;
       while (m >= l) {
         z = H[m][m];
         r = x - z;
         s = y - z;
         p = (r * s - w) / H[m + 1][m] + H[m][m + 1];
         q = H[m + 1][m + 1] - z - r - s;
-        r = H[m+2][m + 1];
+        r = H[m + 2][m + 1];
         s = Math.abs(p) + Math.abs(q) + Math.abs(r);
         p = p / s;
         q = q / s;
         r = r / s;
         if (m == l) break;
-        if (Math.abs(H[m][m - 1]) * (Math.abs(q) + Math.abs(r)) <
-          eps * (Math.abs(p) * (Math.abs(H[m - 1][m - 1]) + Math.abs(z) +
-          Math.abs(H[m + 1][m + 1])))) {
-            break;
+        if (Math.abs(H[m][m - 1]) * (Math.abs(q) + Math.abs(r)) < eps * (Math.abs(p) * (Math.abs(H[m - 1][m - 1]) + Math.abs(z) + Math.abs(H[m + 1][m + 1])))) {
+          break;
         }
         m--;
       }
 
-      for (var i = m+2; i <= n; i++) {
-        H[i][i-2] = 0;
-        if (i > m+2) H[i][i-3] = 0;
+      for (var i = m + 2; i <= n; i++) {
+        H[i][i - 2] = 0;
+        if (i > m + 2) H[i][i - 3] = 0;
       }
 
       // Double QR step involving rows l:n and columns m:n
       for (var k = m; k <= n - 1; k++) {
-        var notlast = (k != n - 1);
+        var notlast = k != n - 1;
         if (k != m) {
           p = H[k][k - 1];
           q = H[k + 1][k - 1];
-          r = (notlast ? H[k + 2][k - 1] : 0);
+          r = notlast ? H[k + 2][k - 1] : 0;
           x = Math.abs(p) + Math.abs(q) + Math.abs(r);
           if (x != 0) {
             p /= x;
@@ -612,10 +631,11 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         }
         if (x == 0) break;
         s = Math.sqrt(p * p + q * q + r * r);
-        if (p < 0) { s = -s; }
+        if (p < 0) {
+          s = -s;
+        }
         if (s != 0) {
-          if (k != m) H[k][k - 1] = -s * x;
-          else if (l != m) H[k][k - 1] = -H[k][k - 1];
+          if (k != m) H[k][k - 1] = -s * x;else if (l != m) H[k][k - 1] = -H[k][k - 1];
           p += s;
           x = p / s;
           y = q / s;
@@ -655,13 +675,15 @@ function science_lin_decomposeHqr2(d, e, H, V) {
             V[i][k] = V[i][k] - p;
             V[i][k + 1] = V[i][k + 1] - p * q;
           }
-        }  // (s != 0)
-      }  // k loop
-    }  // check convergence
-  }  // while (n >= low)
+        } // (s != 0)
+      } // k loop
+    } // check convergence
+  } // while (n >= low)
 
   // Backsubstitute to find vectors of upper triangular form
-  if (norm == 0) { return; }
+  if (norm == 0) {
+    return;
+  }
 
   for (n = nn - 1; n >= 0; n--) {
     p = d[n];
@@ -674,7 +696,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       for (var i = n - 1; i >= 0; i--) {
         w = H[i][i] - p;
         r = 0;
-        for (var j = l; j <= n; j++) { r = r + H[i][j] * H[j][n]; }
+        for (var j = l; j <= n; j++) {
+          r = r + H[i][j] * H[j][n];
+        }
         if (e[i] < 0) {
           z = w;
           s = r;
@@ -698,12 +722,14 @@ function science_lin_decomposeHqr2(d, e, H, V) {
 
           // Overflow control
           t = Math.abs(H[i][n]);
-          if ((eps * t) * t > 1) {
-            for (var j = i; j <= n; j++) H[j][n] = H[j][n] / t;
+          if (eps * t * t > 1) {
+            for (var j = i; j <= n; j++) {
+              H[j][n] = H[j][n] / t;
+            }
           }
         }
       }
-    // Complex vector
+      // Complex vector
     } else if (q < 0) {
       var l = n - 1;
 
@@ -718,7 +744,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       }
       H[n][n - 1] = 0;
       H[n][n] = 1;
-      for (var i = n-2; i >= 0; i--) {
+      for (var i = n - 2; i >= 0; i--) {
         var ra = 0,
             sa = 0,
             vr,
@@ -736,7 +762,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         } else {
           l = i;
           if (e[i] == 0) {
-            var zz = science_lin_decomposeCdiv(-ra,-sa,w,q);
+            var zz = science_lin_decomposeCdiv(-ra, -sa, w, q);
             H[i][n - 1] = zz[0];
             H[i][n] = zz[1];
           } else {
@@ -746,25 +772,24 @@ function science_lin_decomposeHqr2(d, e, H, V) {
             vr = (d[i] - p) * (d[i] - p) + e[i] * e[i] - q * q;
             vi = (d[i] - p) * 2.0 * q;
             if (vr == 0 & vi == 0) {
-              vr = eps * norm * (Math.abs(w) + Math.abs(q) +
-                Math.abs(x) + Math.abs(y) + Math.abs(z));
+              vr = eps * norm * (Math.abs(w) + Math.abs(q) + Math.abs(x) + Math.abs(y) + Math.abs(z));
             }
-            var zz = science_lin_decomposeCdiv(x*r-z*ra+q*sa,x*s-z*sa-q*ra,vr,vi);
+            var zz = science_lin_decomposeCdiv(x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi);
             H[i][n - 1] = zz[0];
             H[i][n] = zz[1];
-            if (Math.abs(x) > (Math.abs(z) + Math.abs(q))) {
+            if (Math.abs(x) > Math.abs(z) + Math.abs(q)) {
               H[i + 1][n - 1] = (-ra - w * H[i][n - 1] + q * H[i][n]) / x;
               H[i + 1][n] = (-sa - w * H[i][n] - q * H[i][n - 1]) / x;
             } else {
-              var zz = science_lin_decomposeCdiv(-r-y*H[i][n - 1],-s-y*H[i][n],z,q);
+              var zz = science_lin_decomposeCdiv(-r - y * H[i][n - 1], -s - y * H[i][n], z, q);
               H[i + 1][n - 1] = zz[0];
               H[i + 1][n] = zz[1];
             }
           }
 
           // Overflow control
-          t = Math.max(Math.abs(H[i][n - 1]),Math.abs(H[i][n]));
-          if ((eps * t) * t > 1) {
+          t = Math.max(Math.abs(H[i][n - 1]), Math.abs(H[i][n]));
+          if (eps * t * t > 1) {
             for (var j = i; j <= n; j++) {
               H[j][n - 1] = H[j][n - 1] / t;
               H[j][n] = H[j][n] / t;
@@ -778,7 +803,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
   // Vectors of isolated roots
   for (var i = 0; i < nn; i++) {
     if (i < low || i > high) {
-      for (var j = i; j < nn; j++) V[i][j] = H[i][j];
+      for (var j = i; j < nn; j++) {
+        V[i][j] = H[i][j];
+      }
     }
   }
 
@@ -786,8 +813,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
   for (var j = nn - 1; j >= low; j--) {
     for (var i = low; i <= high; i++) {
       z = 0;
-      for (var k = low; k <= Math.min(j, high); k++) z += V[i][k] * H[k][j];
-      V[i][j] = z;
+      for (var k = low; k <= Math.min(j, high); k++) {
+        z += V[i][k] * H[k][j];
+      }V[i][j] = z;
     }
   }
 }
@@ -808,27 +836,16 @@ function science_lin_decomposeCdiv(xr, xi, yr, yi) {
 // 4x4 matrix determinant.
 function determinant(matrix) {
   var m = matrix[0].concat(matrix[1]).concat(matrix[2]).concat(matrix[3]);
-  return (
-    m[12] * m[9]  * m[6]  * m[3]  - m[8] * m[13] * m[6]  * m[3]  -
-    m[12] * m[5]  * m[10] * m[3]  + m[4] * m[13] * m[10] * m[3]  +
-    m[8]  * m[5]  * m[14] * m[3]  - m[4] * m[9]  * m[14] * m[3]  -
-    m[12] * m[9]  * m[2]  * m[7]  + m[8] * m[13] * m[2]  * m[7]  +
-    m[12] * m[1]  * m[10] * m[7]  - m[0] * m[13] * m[10] * m[7]  -
-    m[8]  * m[1]  * m[14] * m[7]  + m[0] * m[9]  * m[14] * m[7]  +
-    m[12] * m[5]  * m[2]  * m[11] - m[4] * m[13] * m[2]  * m[11] -
-    m[12] * m[1]  * m[6]  * m[11] + m[0] * m[13] * m[6]  * m[11] +
-    m[4]  * m[1]  * m[14] * m[11] - m[0] * m[5]  * m[14] * m[11] -
-    m[8]  * m[5]  * m[2]  * m[15] + m[4] * m[9]  * m[2]  * m[15] +
-    m[8]  * m[1]  * m[6]  * m[15] - m[0] * m[9]  * m[6]  * m[15] -
-    m[4]  * m[1]  * m[10] * m[15] + m[0] * m[5]  * m[10] * m[15]);
+  return m[12] * m[9] * m[6] * m[3] - m[8] * m[13] * m[6] * m[3] - m[12] * m[5] * m[10] * m[3] + m[4] * m[13] * m[10] * m[3] + m[8] * m[5] * m[14] * m[3] - m[4] * m[9] * m[14] * m[3] - m[12] * m[9] * m[2] * m[7] + m[8] * m[13] * m[2] * m[7] + m[12] * m[1] * m[10] * m[7] - m[0] * m[13] * m[10] * m[7] - m[8] * m[1] * m[14] * m[7] + m[0] * m[9] * m[14] * m[7] + m[12] * m[5] * m[2] * m[11] - m[4] * m[13] * m[2] * m[11] - m[12] * m[1] * m[6] * m[11] + m[0] * m[13] * m[6] * m[11] + m[4] * m[1] * m[14] * m[11] - m[0] * m[5] * m[14] * m[11] - m[8] * m[5] * m[2] * m[15] + m[4] * m[9] * m[2] * m[15] + m[8] * m[1] * m[6] * m[15] - m[0] * m[9] * m[6] * m[15] - m[4] * m[1] * m[10] * m[15] + m[0] * m[5] * m[10] * m[15];
 }
 
 function dot(a, b) {
-  var s = 0,
-      i = -1,
-      n = Math.min(a.length, b.length);
-  while (++i < n) s += a[i] * b[i];
-  return s;
+    var s = 0,
+        i = -1,
+        n = Math.min(a.length, b.length);
+    while (++i < n) {
+        s += a[i] * b[i];
+    }return s;
 }
 
 // Performs in-place Gauss-Jordan elimination.
@@ -848,9 +865,8 @@ function gaussjordan(m, eps) {
     var maxrow = y;
 
     // Find max pivot.
-    y2 = y; while (++y2 < h) {
-      if (Math.abs(m[y2][y]) > Math.abs(m[maxrow][y]))
-        maxrow = y2;
+    y2 = y;while (++y2 < h) {
+      if (Math.abs(m[y2][y]) > Math.abs(m[maxrow][y])) maxrow = y2;
     }
 
     // Swap.
@@ -862,25 +878,25 @@ function gaussjordan(m, eps) {
     if (Math.abs(m[y][y]) <= eps) return false;
 
     // Eliminate column y.
-    y2 = y; while (++y2 < h) {
+    y2 = y;while (++y2 < h) {
       var c = m[y2][y] / m[y][y];
-      x = y - 1; while (++x < w) {
+      x = y - 1;while (++x < w) {
         m[y2][x] -= m[y][x] * c;
       }
     }
   }
 
   // Backsubstitute.
-  y = h; while (--y >= 0) {
+  y = h;while (--y >= 0) {
     var c = m[y][y];
-    y2 = -1; while (++y2 < y) {
-      x = w; while (--x >= y) {
-        m[y2][x] -=  m[y][x] * m[y2][y] / c;
+    y2 = -1;while (++y2 < y) {
+      x = w;while (--x >= y) {
+        m[y2][x] -= m[y][x] * m[y2][y] / c;
       }
     }
     m[y][y] /= c;
     // Normalize row y.
-    x = h - 1; while (++x < w) {
+    x = h - 1;while (++x < w) {
       m[y][x] /= c;
     }
   }
@@ -896,11 +912,12 @@ function inverse(m) {
   if (n !== m[0].length) return;
 
   // Augment with identity matrix I to get AI.
-  m = m.map(function(row, i) {
+  m = m.map(function (row, i) {
     var identity = new Array(n),
         j = -1;
-    while (++j < n) identity[j] = i === j ? 1 : 0;
-    return row.concat(identity);
+    while (++j < n) {
+      identity[j] = i === j ? 1 : 0;
+    }return row.concat(identity);
   });
 
   // Compute IA^-1.
@@ -925,14 +942,15 @@ function multiply(a, b) {
       i = -1,
       j,
       k;
-  if (p !== a[0].length) throw {"error": "columns(a) != rows(b); " + a[0].length + " != " + p};
+  if (p !== a[0].length) throw { "error": "columns(a) != rows(b); " + a[0].length + " != " + p };
   var ab = new Array(m);
   while (++i < m) {
     ab[i] = new Array(n);
-    j = -1; while(++j < n) {
+    j = -1;while (++j < n) {
       var s = 0;
-      k = -1; while (++k < p) s += a[i][k] * b[k][j];
-      ab[i][j] = s;
+      k = -1;while (++k < p) {
+        s += a[i][k] * b[k][j];
+      }ab[i][j] = s;
     }
   }
   return ab;
@@ -940,7 +958,9 @@ function multiply(a, b) {
 
 function normalize(p) {
   var length$$1 = length(p);
-  return p.map(function(d) { return d / length$$1; });
+  return p.map(function (d) {
+    return d / length$$1;
+  });
 }
 
 function transpose(a) {
@@ -951,7 +971,9 @@ function transpose(a) {
       b = new Array(n);
   while (++i < n) {
     b[i] = new Array(m);
-    j = -1; while (++j < m) b[i][j] = a[j][i];
+    j = -1;while (++j < m) {
+      b[i][j] = a[j][i];
+    }
   }
   return b;
 }
@@ -969,8 +991,7 @@ function transpose(a) {
  * @param {number} n
  */
 function tridag(a, b, c, d, x, n) {
-  var i,
-      m;
+  var i, m;
   for (i = 1; i < n; i++) {
     m = a[i] / b[i - 1];
     b[i] -= m * c[i - 1];
@@ -1000,12 +1021,12 @@ var lin_ = Object.freeze({
 
 // Based on implementation in http://picomath.org/.
 function erf(x) {
-  var a1 =  0.254829592,
+  var a1 = 0.254829592,
       a2 = -0.284496736,
-      a3 =  1.421413741,
+      a3 = 1.421413741,
       a4 = -1.453152027,
-      a5 =  1.061405429,
-      p  =  0.3275911;
+      a5 = 1.061405429,
+      p = 0.3275911;
 
   // Save the sign of x
   var sign = x < 0 ? -1 : 1;
@@ -1016,9 +1037,7 @@ function erf(x) {
 
   // A&S formula 7.1.26
   var t = 1 / (1 + p * x);
-  return sign * (
-    1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1)
-    * t * Math.exp(-x * x));
+  return sign * (1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x));
 }
 
 // From http://www.colingodsey.com/javascript-gaussian-random-number-generator/
@@ -1030,9 +1049,7 @@ function gaussian() {
       variance = 1;
 
   function gaussian() {
-    var x1,
-        x2,
-        rad;
+    var x1, x2, rad;
 
     do {
       x1 = 2 * random() - 1;
@@ -1043,29 +1060,29 @@ function gaussian() {
     return mean + sigma * x1 * Math.sqrt(-2 * Math.log(rad) / rad);
   }
 
-  gaussian.pdf = function(x) {
+  gaussian.pdf = function (x) {
     x = (x - mean) / sigma;
     return science_stats_distribution_gaussianConstant * Math.exp(-.5 * x * x) / sigma;
   };
 
-  gaussian.cdf = function(x) {
+  gaussian.cdf = function (x) {
     x = (x - mean) / sigma;
     return .5 * (1 + erf(x / Math.SQRT2));
   };
 
-  gaussian.mean = function(x) {
+  gaussian.mean = function (x) {
     if (!arguments.length) return mean;
     mean = +x;
     return gaussian;
   };
 
-  gaussian.variance = function(x) {
+  gaussian.variance = function (x) {
     if (!arguments.length) return variance;
     sigma = Math.sqrt(variance = +x);
     return gaussian;
   };
 
-  gaussian.random = function(x) {
+  gaussian.random = function (x) {
     if (!arguments.length) return random;
     random = x;
     return gaussian;
@@ -1074,7 +1091,7 @@ function gaussian() {
   return gaussian;
 }
 
-const science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+var science_stats_distribution_gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
 
 
 
@@ -1088,8 +1105,9 @@ function mean(x) {
   if (n === 0) return NaN;
   var m = 0,
       i = -1;
-  while (++i < n) m += (x[i] - m) / (i + 1);
-  return m;
+  while (++i < n) {
+    m += (x[i] - m) / (i + 1);
+  }return m;
 }
 
 // Unbiased estimate of a sample's variance.
@@ -1112,9 +1130,8 @@ function variance(x) {
 function quantiles(d, quantiles) {
   d = d.slice().sort(ascending);
   var n_1 = d.length - 1;
-  return quantiles.map(function(q) {
-    if (q === 0) return d[0];
-    else if (q === 1) return d[n_1];
+  return quantiles.map(function (q) {
+    if (q === 0) return d[0];else if (q === 1) return d[n_1];
 
     var index = 1 + q * n_1,
         lo = Math.floor(index),
@@ -1137,8 +1154,7 @@ function iqr(x) {
 function nrd0(x) {
     var lo;
     var hi = Math.sqrt(variance(x));
-    if (!(lo = Math.min(hi, iqr(x) / 1.34)))
-        (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
+    if (!(lo = Math.min(hi, iqr(x) / 1.34))) (lo = hi) || (lo = Math.abs(x[1])) || (lo = 1);
     return .9 * lo * Math.pow(x.length, -.2);
 }
 
@@ -1146,10 +1162,8 @@ function nrd0(x) {
 // Visualization. Wiley.
 function nrd(x) {
     var h = iqr(x) / 1.34;
-    return 1.06 * Math.min(Math.sqrt(variance(x)), h)
-        * Math.pow(x.length, -1 / 5);
+    return 1.06 * Math.min(Math.sqrt(variance(x)), h) * Math.pow(x.length, -1 / 5);
 }
-
 
 var bandwidth_ = Object.freeze({
 	nrd0: nrd0,
@@ -1172,8 +1186,9 @@ function manhattan(a, b) {
     var n = a.length,
         i = -1,
         s = 0;
-    while (++i < n) s += Math.abs(a[i] - b[i]);
-    return s;
+    while (++i < n) {
+        s += Math.abs(a[i] - b[i]);
+    }return s;
 }
 
 function minkowski(p) {
@@ -1181,8 +1196,9 @@ function minkowski(p) {
         var n = a.length,
             i = -1,
             s = 0;
-        while (++i < n) s += Math.pow(Math.abs(a[i] - b[i]), p);
-        return Math.pow(s, 1 / p);
+        while (++i < n) {
+            s += Math.pow(Math.abs(a[i] - b[i]), p);
+        }return Math.pow(s, 1 / p);
     };
 }
 
@@ -1202,16 +1218,18 @@ function hamming(a, b) {
     var n = a.length,
         i = -1,
         d = 0;
-    while (++i < n) if (a[i] !== b[i]) d++;
-    return d;
+    while (++i < n) {
+        if (a[i] !== b[i]) d++;
+    }return d;
 }
 
 function jaccard(a, b) {
     var n = a.length,
         i = -1,
         s = 0;
-    while (++i < n) if (a[i] === b[i]) s++;
-    return s / n;
+    while (++i < n) {
+        if (a[i] === b[i]) s++;
+    }return s / n;
 }
 
 function braycurtis(a, b) {
@@ -1260,17 +1278,17 @@ function hcluster() {
         j;
 
     // Initialise distance matrix and vector of closest clusters.
-    i = -1; while (++i < n) {
+    i = -1;while (++i < n) {
       dMin[i] = 0;
       distMatrix[i] = [];
-      j = -1; while (++j < n) {
-        distMatrix[i][j] = i === j ? Infinity : distance(vectors[i] , vectors[j]);
+      j = -1;while (++j < n) {
+        distMatrix[i][j] = i === j ? Infinity : distance(vectors[i], vectors[j]);
         if (distMatrix[i][dMin[i]] > distMatrix[i][j]) dMin[i] = j;
       }
     }
 
     // create leaves of the tree
-    i = -1; while (++i < n) {
+    i = -1;while (++i < n) {
       clusters[i] = [];
       clusters[i][0] = {
         left: null,
@@ -1284,7 +1302,7 @@ function hcluster() {
     }
 
     // Main loop
-    for (p = 0; p < n-1; p++) {
+    for (p = 0; p < n - 1; p++) {
       // find the closest pair of clusters
       c1 = 0;
       for (i = 0; i < n; i++) {
@@ -1300,8 +1318,7 @@ function hcluster() {
         left: c1Cluster,
         right: c2Cluster,
         dist: distMatrix[c1][c2],
-        centroid: calculateCentroid(c1Cluster.size, c1Cluster.centroid,
-          c2Cluster.size, c2Cluster.centroid),
+        centroid: calculateCentroid(c1Cluster.size, c1Cluster.centroid, c2Cluster.size, c2Cluster.centroid),
         size: c1Cluster.size + c2Cluster.size,
         depth: 1 + Math.max(c1Cluster.depth, c2Cluster.depth)
       };
@@ -1312,12 +1329,10 @@ function hcluster() {
       for (j = 0; j < n; j++) {
         switch (linkage) {
           case "single":
-            if (distMatrix[c1][j] > distMatrix[c2][j])
-              distMatrix[j][c1] = distMatrix[c1][j] = distMatrix[c2][j];
+            if (distMatrix[c1][j] > distMatrix[c2][j]) distMatrix[j][c1] = distMatrix[c1][j] = distMatrix[c2][j];
             break;
           case "complete":
-            if (distMatrix[c1][j] < distMatrix[c2][j])
-              distMatrix[j][c1] = distMatrix[c1][j] = distMatrix[c2][j];
+            if (distMatrix[c1][j] < distMatrix[c2][j]) distMatrix[j][c1] = distMatrix[c1][j] = distMatrix[c2][j];
             break;
           case "average":
             distMatrix[j][c1] = distMatrix[c1][j] = (cSize[c1] * distMatrix[c1][j] + cSize[c2] * distMatrix[c2][j]) / (cSize[c1] + cSize[j]);
@@ -1327,10 +1342,9 @@ function hcluster() {
       distMatrix[c1][c1] = Infinity;
 
       // infinity ­out old row c2 and column c2
-      for (i = 0; i < n; i++)
+      for (i = 0; i < n; i++) {
         distMatrix[i][c2] = distMatrix[c2][i] = Infinity;
-
-      // update dmin and replace ones that previous pointed to c2 to point to c1
+      } // update dmin and replace ones that previous pointed to c2 to point to c1
       for (j = 0; j < n; j++) {
         if (dMin[j] == c2) dMin[j] = c1;
         if (distMatrix[c1][j] < distMatrix[c1][dMin[c1]]) dMin[c1] = j;
@@ -1343,7 +1357,7 @@ function hcluster() {
     return root;
   }
 
-  hcluster.distance = function(x) {
+  hcluster.distance = function (x) {
     if (!arguments.length) return distance;
     distance = x;
     return hcluster;
@@ -1381,16 +1395,16 @@ function epanechnikov(u) {
 
 function quartic(u) {
 	if (u <= 1 && u >= -1) {
-		const tmp = 1 - u * u;
-		return (15 / 16) * tmp * tmp;
+		var tmp = 1 - u * u;
+		return 15 / 16 * tmp * tmp;
 	}
 	return 0;
 }
 
 function triweight(u) {
 	if (u <= 1 && u >= -1) {
-		const tmp = 1 - u * u;
-		return (35 / 32) * tmp * tmp * tmp;
+		var tmp = 1 - u * u;
+		return 35 / 32 * tmp * tmp * tmp;
 	}
 	return 0;
 }
@@ -1403,7 +1417,6 @@ function cosine(u) {
 	if (u <= 1 && u >= -1) return Math.PI / 4 * Math.cos(Math.PI / 2 * u);
 	return 0;
 }
-
 
 var kernel_ = Object.freeze({
 	uniform: uniform,
@@ -1423,7 +1436,7 @@ function kde() {
 
   function kde(points, i) {
     var bw = bandwidth.call(this, sample);
-    return points.map(function(x) {
+    return points.map(function (x) {
       var i = -1,
           y = 0,
           n = sample.length;
@@ -1434,19 +1447,19 @@ function kde() {
     });
   }
 
-  kde.kernel = function(x) {
+  kde.kernel = function (x) {
     if (!arguments.length) return kernel;
     kernel = x;
     return kde;
   };
 
-  kde.sample = function(x) {
+  kde.sample = function (x) {
     if (!arguments.length) return sample;
     sample = x;
     return kde;
   };
 
-  kde.bandwidth = function(x) {
+  kde.bandwidth = function (x) {
     if (!arguments.length) return bandwidth;
     bandwidth = functor(x);
     return kde;
@@ -1479,14 +1492,14 @@ function kmeans() {
 
     while (repeat && iterations < maxIterations) {
       // Assignment step.
-      j = -1; while (++j < k) {
+      j = -1;while (++j < k) {
         clusterSizes[j] = 0;
       }
 
-      i = -1; while (++i < n) {
+      i = -1;while (++i < n) {
         x = vectors[i];
         min = Infinity;
-        j = -1; while (++j < k) {
+        j = -1;while (++j < k) {
           d = distance.call(this, centroids[j], x);
           if (d < min) {
             min = d;
@@ -1498,25 +1511,26 @@ function kmeans() {
 
       // Update centroids step.
       newCentroids = [];
-      i = -1; while (++i < n) {
+      i = -1;while (++i < n) {
         x = assignments[i];
         d = newCentroids[x];
-        if (d == null) newCentroids[x] = vectors[i].slice();
-        else {
-          j = -1; while (++j < d.length) {
+        if (d == null) newCentroids[x] = vectors[i].slice();else {
+          j = -1;while (++j < d.length) {
             d[j] += vectors[i][j];
           }
         }
       }
-      j = -1; while (++j < k) {
+      j = -1;while (++j < k) {
         x = newCentroids[j];
         d = 1 / clusterSizes[j];
-        i = -1; while (++i < x.length) x[i] *= d;
+        i = -1;while (++i < x.length) {
+          x[i] *= d;
+        }
       }
 
       // Check convergence.
       repeat = 0;
-      j = -1; while (++j < k) {
+      j = -1;while (++j < k) {
         if (!science_stats_kmeansCompare(newCentroids[j], centroids[j])) {
           repeat = 1;
           break;
@@ -1525,16 +1539,16 @@ function kmeans() {
       centroids = newCentroids;
       iterations++;
     }
-    return {assignments: assignments, centroids: centroids};
+    return { assignments: assignments, centroids: centroids };
   }
 
-  kmeans.k = function(x) {
+  kmeans.k = function (x) {
     if (!arguments.length) return k;
     k = x;
     return kmeans;
   };
 
-  kmeans.distance = function(x) {
+  kmeans.distance = function (x) {
     if (!arguments.length) return distance;
     distance = x;
     return kmeans;
@@ -1547,8 +1561,9 @@ function science_stats_kmeansCompare(a, b) {
   if (!a || !b || a.length !== b.length) return false;
   var n = a.length,
       i = -1;
-  while (++i < n) if (a[i] !== b[i]) return false;
-  return true;
+  while (++i < n) {
+    if (a[i] !== b[i]) return false;
+  }return true;
 }
 
 // Returns an array of k distinct vectors randomly selected from the input
@@ -1557,22 +1572,20 @@ function science_stats_kmeansCompare(a, b) {
 function science_stats_kmeansRandom(k, vectors) {
   var n = vectors.length;
   if (k > n) return null;
-  
+
   var selected_vectors = [];
   var selected_indices = [];
   var tested_indices = {};
   var tested = 0;
   var selected = 0;
-  var i,
-      vector,
-      select;
+  var i, vector, select;
 
   while (selected < k) {
     if (tested === n) return null;
-    
+
     var random_index = Math.floor(Math.random() * n);
     if (random_index in tested_indices) continue;
-    
+
     tested_indices[random_index] = 1;
     tested++;
     vector = vectors[random_index];
@@ -1607,12 +1620,14 @@ function loess() {
     var n = xval.length,
         i;
 
-    if (n !== yval.length) throw {error: "Mismatched array lengths"};
-    if (n == 0) throw {error: "At least one point required."};
+    if (n !== yval.length) throw { error: "Mismatched array lengths" };
+    if (n == 0) throw { error: "At least one point required." };
 
     if (arguments.length < 3) {
       weights = [];
-      i = -1; while (++i < n) weights[i] = 1;
+      i = -1;while (++i < n) {
+        weights[i] = 1;
+      }
     }
 
     science_stats_loessFiniteReal(xval);
@@ -1625,7 +1640,7 @@ function loess() {
 
     var bandwidthInPoints = Math.floor(bandwidth * n);
 
-    if (bandwidthInPoints < 2) throw {error: "Bandwidth too small."};
+    if (bandwidthInPoints < 2) throw { error: "Bandwidth too small." };
 
     var res = [],
         residuals = [],
@@ -1634,7 +1649,7 @@ function loess() {
     // Do an initial fit and 'robustnessIters' robustness iterations.
     // This is equivalent to doing 'robustnessIters+1' robustness iterations
     // starting with all robustness weights set to 1.
-    i = -1; while (++i < n) {
+    i = -1;while (++i < n) {
       res[i] = 0;
       residuals[i] = 0;
       robustnessWeights[i] = 1;
@@ -1645,7 +1660,7 @@ function loess() {
       var bandwidthInterval = [0, bandwidthInPoints - 1];
       // At each x, compute a local weighted linear regression
       var x;
-      i = -1; while (++i < n) {
+      i = -1;while (++i < n) {
         x = xval[i];
 
         // Find out the interval of source points on which
@@ -1659,7 +1674,7 @@ function loess() {
 
         // Compute the point of the bandwidth interval that is
         // farthest from x
-        var edge = (xval[i] - xval[ileft]) > (xval[iright] - xval[i]) ? ileft : iright;
+        var edge = xval[i] - xval[ileft] > xval[iright] - xval[i] ? ileft : iright;
 
         // Compute a least-squares linear fit weighted by
         // the product of robustness weights and the tricube
@@ -1676,11 +1691,11 @@ function loess() {
             denom = Math.abs(1 / (xval[edge] - x));
 
         for (var k = ileft; k <= iright; ++k) {
-          var xk   = xval[k],
-              yk   = yval[k],
+          var xk = xval[k],
+              yk = yval[k],
               dist = k < i ? x - xk : xk - x,
-              w    = science_stats_loessTricube(dist * denom) * robustnessWeights[k] * weights[k],
-              xkw  = xk * w;
+              w = science_stats_loessTricube(dist * denom) * robustnessWeights[k] * weights[k],
+              xkw = xk * w;
           sumWeights += w;
           sumX += xkw;
           sumXSquared += xk * xkw;
@@ -1693,8 +1708,7 @@ function loess() {
             meanXY = sumXY / sumWeights,
             meanXSquared = sumXSquared / sumWeights;
 
-        var beta = (Math.sqrt(Math.abs(meanXSquared - meanX * meanX)) < accuracy)
-            ? 0 : ((meanXY - meanX * meanY) / (meanXSquared - meanX * meanX));
+        var beta = Math.sqrt(Math.abs(meanXSquared - meanX * meanX)) < accuracy ? 0 : (meanXY - meanX * meanY) / (meanXSquared - meanX * meanX);
 
         var alpha = meanY - beta * meanX;
 
@@ -1713,33 +1727,31 @@ function loess() {
       // Find the median residual.
       var medianResidual = median(residuals);
 
-      if (Math.abs(medianResidual) < accuracy)
-        break;
+      if (Math.abs(medianResidual) < accuracy) break;
 
-      var arg,
-          w;
-      i = -1; while (++i < n) {
+      var arg, w;
+      i = -1;while (++i < n) {
         arg = residuals[i] / (6 * medianResidual);
-        robustnessWeights[i] = (arg >= 1) ? 0 : ((w = 1 - arg * arg) * w);
+        robustnessWeights[i] = arg >= 1 ? 0 : (w = 1 - arg * arg) * w;
       }
     }
 
     return res;
   }
 
-  smooth.bandwidth = function(x) {
+  smooth.bandwidth = function (x) {
     if (!arguments.length) return x;
     bandwidth = x;
     return smooth;
   };
 
-  smooth.robustnessIterations = function(x) {
+  smooth.robustnessIterations = function (x) {
     if (!arguments.length) return x;
     robustnessIters = x;
     return smooth;
   };
 
-  smooth.accuracy = function(x) {
+  smooth.accuracy = function (x) {
     if (!arguments.length) return x;
     accuracy = x;
     return smooth;
@@ -1752,18 +1764,18 @@ function science_stats_loessFiniteReal(values) {
   var n = values.length,
       i = -1;
 
-  while (++i < n) if (!isFinite(values[i])) return false;
-
-  return true;
+  while (++i < n) {
+    if (!isFinite(values[i])) return false;
+  }return true;
 }
 
 function science_stats_loessStrictlyIncreasing(xval) {
   var n = xval.length,
       i = 0;
 
-  while (++i < n) if (xval[i - 1] >= xval[i]) return false;
-
-  return true;
+  while (++i < n) {
+    if (xval[i - 1] >= xval[i]) return false;
+  }return true;
 }
 
 // Compute the tricube weight function.
@@ -1775,8 +1787,7 @@ function science_stats_loessTricube(x) {
 // Given an index interval into xval that embraces a certain number of
 // points closest to xval[i-1], update the interval so that it embraces
 // the same number of points closest to xval[i], ignoring zero weights.
-function science_stats_loessUpdateBandwidthInterval(
-  xval, weights, i, bandwidthInterval) {
+function science_stats_loessUpdateBandwidthInterval(xval, weights, i, bandwidthInterval) {
 
   var left = bandwidthInterval[0],
       right = bandwidthInterval[1];
@@ -1784,7 +1795,7 @@ function science_stats_loessUpdateBandwidthInterval(
   // The right edge should be adjusted if the next point to the right
   // is closer to xval[i] than the leftmost point of the current interval
   var nextRight = science_stats_loessNextNonzero(weights, right);
-  if ((nextRight < xval.length) && (xval[nextRight] - xval[i]) < (xval[i] - xval[left])) {
+  if (nextRight < xval.length && xval[nextRight] - xval[i] < xval[i] - xval[left]) {
     var nextLeft = science_stats_loessNextNonzero(weights, left);
     bandwidthInterval[0] = nextLeft;
     bandwidthInterval[1] = nextRight;
@@ -1793,8 +1804,9 @@ function science_stats_loessUpdateBandwidthInterval(
 
 function science_stats_loessNextNonzero(weights, i) {
   var j = i + 1;
-  while (j < weights.length && weights[j] === 0) j++;
-  return j;
+  while (j < weights.length && weights[j] === 0) {
+    j++;
+  }return j;
 }
 
 function mode(x) {
@@ -1807,8 +1819,7 @@ function mode(x) {
       k;
   while (++i < n) {
     k = counts.hasOwnProperty(d = x[i]) ? ++counts[d] : counts[d] = 1;
-    if (k === max) mode.push(d);
-    else if (k > max) {
+    if (k === max) mode.push(d);else if (k > max) {
       max = k;
       mode = [d];
     }
@@ -1820,10 +1831,10 @@ function phi(x) {
   return .5 * (1 + erf(x / Math.SQRT2));
 }
 
-const distance = distance_;
-const kernel = kernel_;
-const distribution = distribution_;
-const bandwidth = bandwidth_;
+var distance = distance_;
+var kernel = kernel_;
+var distribution = distribution_;
+var bandwidth = bandwidth_;
 
 var stats_ = Object.freeze({
 	distance: distance,
@@ -1844,8 +1855,8 @@ var stats_ = Object.freeze({
 	variance: variance
 });
 
-const lin = lin_;
-const stats = stats_;
+var lin = lin_;
+var stats = stats_;
 
 exports.lin = lin;
 exports.stats = stats;
