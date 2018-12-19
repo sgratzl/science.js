@@ -1,4 +1,4 @@
-const science = require("../../science.v1");
+const science = require("../../build/science");
 
 var vows = require("vows"),
     assert = require("../env-assert");

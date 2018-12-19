@@ -8,12 +8,12 @@ export default [{
     file: 'build/science.js',
     name: 'science',
     format: 'umd'
-  }
+  },
   plugins: [
     resolve(),
     commonjs(),
     babel({
-        exclude: 'node_modules/**'
+      exclude: 'node_modules/**'
     })
   ]
 }, {
@@ -26,7 +26,7 @@ export default [{
     resolve(),
     commonjs(),
     babel({
-        exclude: 'node_modules/**'
+      exclude: 'node_modules/**'
     })
   ]
 }];

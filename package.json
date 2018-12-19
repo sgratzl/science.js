@@ -31,8 +31,7 @@
     "build",
     "src/**/*.js"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.0",
@@ -50,6 +49,7 @@
   "scripts": {
     "clean": "rimraf build",
     "watch": "rollup -c -w -i src/index.js",
+    "pretest": "npm run build:dev",
     "test": "vows",
     "test:watch": "vows --watch",
     "build:dev": "rollup -c -i src/index.js",
