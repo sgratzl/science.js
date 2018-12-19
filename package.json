@@ -1,6 +1,6 @@
 {
-  "name": "science",
-  "version": "1.9.3",
+  "name": "@sgratzl/science",
+  "version": "2.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "description": "Scientific and statistical computing in JavaScript.",
   "keywords": [
@@ -8,14 +8,21 @@
     "statistics",
     "mathematics"
   ],
-  "homepage": "https://github.com/jasondavies/science.js",
+  "homepage": "https://github.com/sgratzl/science.js",
   "author": {
     "name": "Jason Davies",
     "url": "http://www.jasondavies.com/"
   },
+  "contributors": [
+    {
+      "name": "Samuel Gratzl",
+      "email": "sam@sgratzl.com",
+      "url": "https://www.sgratzl.com"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/jasondavies/science.js.git"
+    "url": "http://github.com/sgratzl/science.js.git"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
