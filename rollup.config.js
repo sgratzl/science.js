@@ -1,16 +1,32 @@
+// rollup.config.js
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 
-// rollup.config.js
-export default {
-    input: 'src/index.js',
-    output: {
-        file: 'science.v1.js',
-        format: 'umd',
-        name: 'science'
-    },
-    plugins: [
-        babel({
-            exclude: 'node_modules/**'
-        })
-    ]
-};
+export default [{
+  output: {
+    file: 'build/science.js',
+    name: 'science',
+    format: 'umd'
+  }
+  plugins: [
+    resolve(),
+    commonjs(),
+    babel({
+        exclude: 'node_modules/**'
+    })
+  ]
+}, {
+  output: {
+    file: 'build/science.mjs',
+    name: 'ChartHierarchical',
+    format: 'esm'
+  },
+  plugins: [
+    resolve(),
+    commonjs(),
+    babel({
+        exclude: 'node_modules/**'
+    })
+  ]
+}];
