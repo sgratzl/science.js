@@ -31,6 +31,9 @@
     "build",
     "src/**/*.js"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.2.2",
