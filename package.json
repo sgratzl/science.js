@@ -71,8 +71,8 @@
     "prepare": "npm run build:only",
     "lint": "npm run prettier",
     "fix": "npm run prettier:write",
-    "prettier:write": "prettier */** --write",
-    "prettier": "prettier */** --check",
+    "prettier:write": "prettier \"*/**\" --write",
+    "prettier": "prettier \"*/**\" --check",
     "release": "release-it --disable-metrics --npm.skipChecks",
     "release:pre": "release-it --disable-metrics --npm.skipChecks --preRelease=alpha --npm.tag=next"
   }
