@@ -1,4 +1,4 @@
 /**
  * Euler's constant.
  */
-export const EULER = .5772156649015329;
+export const EULER = 0.5772156649015329;

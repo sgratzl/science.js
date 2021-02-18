@@ -3,10 +3,14 @@
 export default function hypot(x, y) {
   x = Math.abs(x);
   y = Math.abs(y);
-  var max,
-      min;
-  if (x > y) { max = x; min = y; }
-  else       { max = y; min = x; }
+  var max, min;
+  if (x > y) {
+    max = x;
+    min = y;
+  } else {
+    max = y;
+    min = x;
+  }
   var r = min / max;
   return max * Math.sqrt(1 + r * r);
-};
+}

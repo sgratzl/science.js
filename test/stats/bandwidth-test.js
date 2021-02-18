@@ -1,23 +1,21 @@
-const science = require("../../build/science");
+const science = require('../../build/science');
 
-var vows = require("vows"),
-    assert = require("assert");
+var vows = require('vows'),
+  assert = require('assert');
 
-var suite = vows.describe("science.stats.bandwidth");
+var suite = vows.describe('science.stats.bandwidth');
 
 suite.addBatch({
-  "bandwidth": {
-    "nrd0": function() {
+  bandwidth: {
+    nrd0: function () {
       var data = [1, 4, 3, 2];
-      assert.equal(science.stats.bandwidth.nrd0(data),
-        .7635139420854616);
+      assert.equal(science.stats.bandwidth.nrd0(data), 0.7635139420854616);
     },
-    "nrd": function() {
+    nrd: function () {
       var data = [1, 4, 3, 2];
-      assert.equal(science.stats.bandwidth.nrd(data),
-        .899249754011766);
-    }
-  }
+      assert.equal(science.stats.bandwidth.nrd(data), 0.899249754011766);
+    },
+  },
 });
 
 suite.export(module);

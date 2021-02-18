@@ -1,12 +1,11 @@
 import hypot from '../core/hypot';
 
 export default function decompose() {
-
   function decompose(A) {
     var n = A.length, // column dimension
-        V = [],
-        d = [],
-        e = [];
+      V = [],
+      d = [],
+      e = [];
 
     for (var i = 0; i < n; i++) {
       V[i] = [];
@@ -45,15 +44,15 @@ export default function decompose() {
 
     var D = [];
     for (var i = 0; i < n; i++) {
-      var row = D[i] = [];
+      var row = (D[i] = []);
       for (var j = 0; j < n; j++) row[j] = i === j ? d[i] : 0;
       D[i][e[i] > 0 ? i + 1 : i - 1] = e[i];
     }
-    return {D: D, V: V};
+    return { D: D, V: V };
   }
 
   return decompose;
-};
+}
 
 // Symmetric Householder reduction to tridiagonal form.
 function science_lin_decomposeTred2(d, e, V) {
@@ -71,7 +70,7 @@ function science_lin_decomposeTred2(d, e, V) {
     // Scale to avoid under/overflow.
 
     var scale = 0,
-        h = 0;
+      h = 0;
     for (var k = 0; k < i; k++) scale += Math.abs(d[k]);
     if (scale === 0) {
       e[i] = d[i - 1];
@@ -100,7 +99,7 @@ function science_lin_decomposeTred2(d, e, V) {
         f = d[j];
         V[j][i] = f;
         g = e[j] + V[j][j] * f;
-        for (var k = j+1; k <= i - 1; k++) {
+        for (var k = j + 1; k <= i - 1; k++) {
           g += V[k][j] * d[k];
           e[k] += V[k][j] * f;
         }
@@ -116,7 +115,7 @@ function science_lin_decomposeTred2(d, e, V) {
       for (var j = 0; j < i; j++) {
         f = d[j];
         g = e[j];
-        for (var k = j; k <= i - 1; k++) V[k][j] -= (f * e[k] + g * d[k]);
+        for (var k = j; k <= i - 1; k++) V[k][j] -= f * e[k] + g * d[k];
         d[j] = V[i - 1][j];
         V[i][j] = 0;
       }
@@ -167,7 +166,9 @@ function science_lin_decomposeTql2(d, e, V) {
     tst1 = Math.max(tst1, Math.abs(d[l]) + Math.abs(e[l]));
     var m = l;
     while (m < n) {
-      if (Math.abs(e[m]) <= eps*tst1) { break; }
+      if (Math.abs(e[m]) <= eps * tst1) {
+        break;
+      }
       m++;
     }
 
@@ -176,7 +177,7 @@ function science_lin_decomposeTql2(d, e, V) {
     if (m > l) {
       var iter = 0;
       do {
-        iter++;  // (Could check iteration count here.)
+        iter++; // (Could check iteration count here.)
 
         // Compute implicit shift
         var g = d[l];
@@ -187,7 +188,7 @@ function science_lin_decomposeTql2(d, e, V) {
         d[l + 1] = e[l] * (p + r);
         var dl1 = d[l + 1];
         var h = g - d[l];
-        for (var i = l+2; i < n; i++) d[i] -= h;
+        for (var i = l + 2; i < n; i++) d[i] -= h;
         f += h;
 
         // Implicit QL transformation.
@@ -204,7 +205,7 @@ function science_lin_decomposeTql2(d, e, V) {
           s2 = s;
           g = c * e[i];
           h = c * p;
-          r = hypot(p,e[i]);
+          r = hypot(p, e[i]);
           e[i + 1] = s * r;
           s = e[i] / r;
           c = p / r;
@@ -218,12 +219,12 @@ function science_lin_decomposeTql2(d, e, V) {
             V[k][i] = c * V[k][i] - s * h;
           }
         }
-        p = -s * s2 * c3 * el1 * e[l] / dl1;
+        p = (-s * s2 * c3 * el1 * e[l]) / dl1;
         e[l] = s * p;
         d[l] = c * p;
 
         // Check for convergence.
-      } while (Math.abs(e[l]) > eps*tst1);
+      } while (Math.abs(e[l]) > eps * tst1);
     }
     d[l] = d[l] + f;
     e[l] = 0;
@@ -306,14 +307,14 @@ function science_lin_decomposeOrthes(H, V) {
     for (var j = 0; j < n; j++) V[i][j] = i === j ? 1 : 0;
   }
 
-  for (var m = high-1; m >= low+1; m--) {
+  for (var m = high - 1; m >= low + 1; m--) {
     if (H[m][m - 1] !== 0) {
       for (var i = m + 1; i <= high; i++) ort[i] = H[i][m - 1];
       for (var j = m; j <= high; j++) {
         var g = 0;
         for (var i = m; i <= high; i++) g += ort[i] * V[i][j];
         // Double division avoids possible underflow
-        g = (g / ort[m]) / H[m][m - 1];
+        g = g / ort[m] / H[m][m - 1];
         for (var i = m; i <= high; i++) V[i][j] += g * ort[i];
       }
     }
@@ -328,20 +329,20 @@ function science_lin_decomposeHqr2(d, e, H, V) {
   // Fortran subroutine in EISPACK.
 
   var nn = H.length,
-      n = nn - 1,
-      low = 0,
-      high = nn - 1,
-      eps = 1e-12,
-      exshift = 0,
-      p = 0,
-      q = 0,
-      r = 0,
-      s = 0,
-      z = 0,
-      t,
-      w,
-      x,
-      y;
+    n = nn - 1,
+    low = 0,
+    high = nn - 1,
+    eps = 1e-12,
+    exshift = 0,
+    p = 0,
+    q = 0,
+    r = 0,
+    s = 0,
+    z = 0,
+    t,
+    w,
+    x,
+    y;
 
   // Store roots isolated by balanc and compute matrix norm
   var norm = 0;
@@ -374,7 +375,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       n--;
       iter = 0;
 
-    // Two roots found
+      // Two roots found
     } else if (l === n - 1) {
       w = H[n][n - 1] * H[n - 1][n];
       p = (H[n - 1][n - 1] - H[n][n]) / 2;
@@ -396,7 +397,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         s = Math.abs(x) + Math.abs(z);
         p = x / s;
         q = z / s;
-        r = Math.sqrt(p * p+q * q);
+        r = Math.sqrt(p * p + q * q);
         p /= r;
         q /= r;
 
@@ -433,7 +434,6 @@ function science_lin_decomposeHqr2(d, e, H, V) {
 
       // No convergence yet
     } else {
-
       // Form shift
       x = H[n][n];
       y = 0;
@@ -449,7 +449,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         for (var i = low; i <= n; i++) {
           H[i][i] -= x;
         }
-        s = Math.abs(H[n][n - 1]) + Math.abs(H[n - 1][n-2]);
+        s = Math.abs(H[n][n - 1]) + Math.abs(H[n - 1][n - 2]);
         x = y = 0.75 * s;
         w = -0.4375 * s * s;
       }
@@ -472,42 +472,43 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         }
       }
 
-      iter++;   // (Could check iteration count here.)
+      iter++; // (Could check iteration count here.)
 
       // Look for two consecutive small sub-diagonal elements
-      var m = n-2;
+      var m = n - 2;
       while (m >= l) {
         z = H[m][m];
         r = x - z;
         s = y - z;
         p = (r * s - w) / H[m + 1][m] + H[m][m + 1];
         q = H[m + 1][m + 1] - z - r - s;
-        r = H[m+2][m + 1];
+        r = H[m + 2][m + 1];
         s = Math.abs(p) + Math.abs(q) + Math.abs(r);
         p = p / s;
         q = q / s;
         r = r / s;
         if (m == l) break;
-        if (Math.abs(H[m][m - 1]) * (Math.abs(q) + Math.abs(r)) <
-          eps * (Math.abs(p) * (Math.abs(H[m - 1][m - 1]) + Math.abs(z) +
-          Math.abs(H[m + 1][m + 1])))) {
-            break;
+        if (
+          Math.abs(H[m][m - 1]) * (Math.abs(q) + Math.abs(r)) <
+          eps * (Math.abs(p) * (Math.abs(H[m - 1][m - 1]) + Math.abs(z) + Math.abs(H[m + 1][m + 1])))
+        ) {
+          break;
         }
         m--;
       }
 
-      for (var i = m+2; i <= n; i++) {
-        H[i][i-2] = 0;
-        if (i > m+2) H[i][i-3] = 0;
+      for (var i = m + 2; i <= n; i++) {
+        H[i][i - 2] = 0;
+        if (i > m + 2) H[i][i - 3] = 0;
       }
 
       // Double QR step involving rows l:n and columns m:n
       for (var k = m; k <= n - 1; k++) {
-        var notlast = (k != n - 1);
+        var notlast = k != n - 1;
         if (k != m) {
           p = H[k][k - 1];
           q = H[k + 1][k - 1];
-          r = (notlast ? H[k + 2][k - 1] : 0);
+          r = notlast ? H[k + 2][k - 1] : 0;
           x = Math.abs(p) + Math.abs(q) + Math.abs(r);
           if (x != 0) {
             p /= x;
@@ -517,7 +518,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         }
         if (x == 0) break;
         s = Math.sqrt(p * p + q * q + r * r);
-        if (p < 0) { s = -s; }
+        if (p < 0) {
+          s = -s;
+        }
         if (s != 0) {
           if (k != m) H[k][k - 1] = -s * x;
           else if (l != m) H[k][k - 1] = -H[k][k - 1];
@@ -560,13 +563,15 @@ function science_lin_decomposeHqr2(d, e, H, V) {
             V[i][k] = V[i][k] - p;
             V[i][k + 1] = V[i][k + 1] - p * q;
           }
-        }  // (s != 0)
-      }  // k loop
-    }  // check convergence
-  }  // while (n >= low)
+        } // (s != 0)
+      } // k loop
+    } // check convergence
+  } // while (n >= low)
 
   // Backsubstitute to find vectors of upper triangular form
-  if (norm == 0) { return; }
+  if (norm == 0) {
+    return;
+  }
 
   for (n = nn - 1; n >= 0; n--) {
     p = d[n];
@@ -579,7 +584,9 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       for (var i = n - 1; i >= 0; i--) {
         w = H[i][i] - p;
         r = 0;
-        for (var j = l; j <= n; j++) { r = r + H[i][j] * H[j][n]; }
+        for (var j = l; j <= n; j++) {
+          r = r + H[i][j] * H[j][n];
+        }
         if (e[i] < 0) {
           z = w;
           s = r;
@@ -603,12 +610,12 @@ function science_lin_decomposeHqr2(d, e, H, V) {
 
           // Overflow control
           t = Math.abs(H[i][n]);
-          if ((eps * t) * t > 1) {
+          if (eps * t * t > 1) {
             for (var j = i; j <= n; j++) H[j][n] = H[j][n] / t;
           }
         }
       }
-    // Complex vector
+      // Complex vector
     } else if (q < 0) {
       var l = n - 1;
 
@@ -623,11 +630,11 @@ function science_lin_decomposeHqr2(d, e, H, V) {
       }
       H[n][n - 1] = 0;
       H[n][n] = 1;
-      for (var i = n-2; i >= 0; i--) {
+      for (var i = n - 2; i >= 0; i--) {
         var ra = 0,
-            sa = 0,
-            vr,
-            vi;
+          sa = 0,
+          vr,
+          vi;
         for (var j = l; j <= n; j++) {
           ra = ra + H[i][j] * H[j][n - 1];
           sa = sa + H[i][j] * H[j][n];
@@ -641,7 +648,7 @@ function science_lin_decomposeHqr2(d, e, H, V) {
         } else {
           l = i;
           if (e[i] == 0) {
-            var zz = science_lin_decomposeCdiv(-ra,-sa,w,q);
+            var zz = science_lin_decomposeCdiv(-ra, -sa, w, q);
             H[i][n - 1] = zz[0];
             H[i][n] = zz[1];
           } else {
@@ -650,26 +657,25 @@ function science_lin_decomposeHqr2(d, e, H, V) {
             y = H[i + 1][i];
             vr = (d[i] - p) * (d[i] - p) + e[i] * e[i] - q * q;
             vi = (d[i] - p) * 2.0 * q;
-            if (vr == 0 & vi == 0) {
-              vr = eps * norm * (Math.abs(w) + Math.abs(q) +
-                Math.abs(x) + Math.abs(y) + Math.abs(z));
+            if ((vr == 0) & (vi == 0)) {
+              vr = eps * norm * (Math.abs(w) + Math.abs(q) + Math.abs(x) + Math.abs(y) + Math.abs(z));
             }
-            var zz = science_lin_decomposeCdiv(x*r-z*ra+q*sa,x*s-z*sa-q*ra,vr,vi);
+            var zz = science_lin_decomposeCdiv(x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi);
             H[i][n - 1] = zz[0];
             H[i][n] = zz[1];
-            if (Math.abs(x) > (Math.abs(z) + Math.abs(q))) {
+            if (Math.abs(x) > Math.abs(z) + Math.abs(q)) {
               H[i + 1][n - 1] = (-ra - w * H[i][n - 1] + q * H[i][n]) / x;
               H[i + 1][n] = (-sa - w * H[i][n] - q * H[i][n - 1]) / x;
             } else {
-              var zz = science_lin_decomposeCdiv(-r-y*H[i][n - 1],-s-y*H[i][n],z,q);
+              var zz = science_lin_decomposeCdiv(-r - y * H[i][n - 1], -s - y * H[i][n], z, q);
               H[i + 1][n - 1] = zz[0];
               H[i + 1][n] = zz[1];
             }
           }
 
           // Overflow control
-          t = Math.max(Math.abs(H[i][n - 1]),Math.abs(H[i][n]));
-          if ((eps * t) * t > 1) {
+          t = Math.max(Math.abs(H[i][n - 1]), Math.abs(H[i][n]));
+          if (eps * t * t > 1) {
             for (var j = i; j <= n; j++) {
               H[j][n - 1] = H[j][n - 1] / t;
               H[j][n] = H[j][n] / t;
@@ -701,11 +707,11 @@ function science_lin_decomposeHqr2(d, e, H, V) {
 function science_lin_decomposeCdiv(xr, xi, yr, yi) {
   if (Math.abs(yr) > Math.abs(yi)) {
     var r = yi / yr,
-        d = yr + r * yi;
+      d = yr + r * yi;
     return [(xr + r * xi) / d, (xi - r * xr) / d];
   } else {
     var r = yr / yi,
-        d = yi + r * yr;
+      d = yi + r * yr;
     return [(r * xr + xi) / d, (r * xi - xr) / d];
   }
 }

@@ -1,17 +1,17 @@
-const science = require("../../../build/science");
+const science = require('../../../build/science');
 
-var vows = require("vows"),
-    assert = require("assert");
+var vows = require('vows'),
+  assert = require('assert');
 
-var suite = vows.describe("science.stats.distribution.gaussian");
+var suite = vows.describe('science.stats.distribution.gaussian');
 
 suite.addBatch({
-  "gaussian": {
+  gaussian: {
     topic: science.stats.distribution.gaussian,
-    "pdf": function(gaussian) {
+    pdf: function (gaussian) {
       assert.equal(gaussian.pdf(0), 1 / Math.sqrt(2 * Math.PI));
-    }
-  }
+    },
+  },
 });
 
 suite.export(module);

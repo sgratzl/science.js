@@ -1,1 +1,1 @@
-export {default as gaussian} from './gaussian';
+export { default as gaussian } from './gaussian';

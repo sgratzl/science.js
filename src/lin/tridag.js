@@ -11,8 +11,7 @@
  * @param {number} n
  */
 export default function tridag(a, b, c, d, x, n) {
-  var i,
-      m;
+  var i, m;
   for (i = 1; i < n; i++) {
     m = a[i] / b[i - 1];
     b[i] -= m * c[i - 1];
@@ -22,4 +21,4 @@ export default function tridag(a, b, c, d, x, n) {
   for (i = n - 2; i >= 0; i--) {
     x[i] = (d[i] - c[i] * x[i + 1]) / b[i];
   }
-};
+}

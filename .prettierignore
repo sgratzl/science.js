@@ -1,0 +1,8 @@
+/build
+/.gitattributes
+/.gitignore
+/.prettierignore
+/LICENSE
+/.vscode
+/package-lock.json
+/lib
