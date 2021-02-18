@@ -1,4 +1,4 @@
-export const version = '1.9.3'; // semver
+export const version = '2.0.0'; // semver
 
 export { default as ascending } from './ascending';
 export { EULER } from './constants';
